@@ -43,7 +43,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public static void main(String[] args)
 	{
-		JFrame frame = new JFrame("Test");
+		JFrame frame = new JFrame("Fabric Painter Image Processor");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -351,7 +351,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 					// make sure it has the png file extension
 					String ext = ImageFilter.getExtension(file); 
 					if (ext == null || !ext.equals("png"))
-						file = new File(fc.getSelectedFile().getAbsolutePath() + File.pathSeparator + ".png");
+						file = new File(fc.getSelectedFile().getAbsolutePath() + ".png");
 					
 					ImageIO.write(this.displayImage.getSelectionImage(), "png", file);
 					

@@ -53,7 +53,7 @@ public class ImageToInstructions {
 				FileWriter writer = null;
 				try
 				{
-					writer = new FileWriter(targetDirectory.getAbsolutePath() + File.pathSeparator + counter + ".csv");
+					writer = new FileWriter(targetDirectory.getAbsolutePath() + File.separator + counter + ".csv");
 					
 					for (int y = 0; y < 32; y++)
 					{
@@ -84,7 +84,7 @@ public class ImageToInstructions {
 					
 					
 					// create a new file, that has all the color info Nc.csv
-					writer = new FileWriter(targetDirectory.getAbsolutePath() + File.pathSeparator + counter + "c.csv");
+					writer = new FileWriter(targetDirectory.getAbsolutePath() + File.separator + counter + "c.csv");
 					List<Entry<String, Integer>> list = new LinkedList<>(counts.entrySet());
 
 			        // Sorting the list based on values
