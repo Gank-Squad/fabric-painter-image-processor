@@ -1,14 +1,14 @@
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -24,11 +24,14 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.im4java.core.IM4JavaException;
+
 import components.DisplayImage;
 import components.GuiBase;
 import components.PreviewImage;
 import components.filters.ImageFilter;
 import processing.ImageToInstructions;
+import processing.ProcessImg;
 import processing.dithering.DitherTypes;
 
 public class Base extends JFrame implements ActionListener, ChangeListener
@@ -60,8 +63,9 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		GridBagConstraints c = new GridBagConstraints();	
 		displayImage = GuiBase.createDisplayImage();
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 5;
+		c.weighty = 5;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 5;
@@ -311,19 +315,24 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		}
 		else if (e.getSource() == openFileChooser)
 		{
-			int returnVal = fc.showOpenDialog(Base.this);
+			FileDialog fd = new FileDialog(this, "sample title");
+			fd.setMode(FileDialog.LOAD);
+			fd.setVisible(true);
 			
-			if (returnVal == JFileChooser.APPROVE_OPTION)
-			{
-				try
+			try {
+				if (fd.getFile() != null)
 				{
-					displayImage.updateImage(ImageIO.read(fc.getSelectedFile()));
+//					System.out.println(fd.getDirectory() + fd.getFile());
+//					displayImage.updateImage(ImageIO.read(new File(fd.getDirectory() + fd.getFile())));
+					displayImage.updateImage(ProcessImg.loadImage(new File(fd.getDirectory() + fd.getFile())));
 				}
-				catch (Exception err)
-				{
-					err.printStackTrace();
-				}
+					
 			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			
 		}
 		// other components go here
 		else if (e.getSource() == this.floydSteinbergRadioButton)

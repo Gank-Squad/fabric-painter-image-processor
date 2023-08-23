@@ -27,8 +27,8 @@ public class GuiBase {
 			e.printStackTrace();
 		}
 
-		d.setPreferredSize(new Dimension(500,500));
-		d.setMaximumSize(new Dimension(500,500));
+//		d.setPreferredSize(new Dimension(500,500));
+//		d.setMaximumSize(new Dimension(500,500));
 		
 		return d;
 	}

@@ -1,10 +1,9 @@
 package components;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.TexturePaint;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
@@ -53,6 +52,11 @@ public class DisplayImage extends JComponent
 		this.bg = new DisplayBackground();
 	}
 	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(500,500);
+	}
+	
 	public void updateImage(BufferedImage image)
 	{
 		this.originalImage = image;
@@ -61,31 +65,26 @@ public class DisplayImage extends JComponent
 		processWorkingImage();
 		repaint();
 	}
-	
-	/**
-	 * calculates the height to maintain aspect ratio to fit inside a square
-	 * 
-	 * @param sideLength	the side length of the square containing the image
-	 * @return the height that should be used to maintain aspect ratio
-	 */
-	private int calcHeight(int sideLength)
+	 
+	private Dimension calcDimension()
 	{
-		return (int)Math.round((double)this.workingImage.getHeight() * this.getScale(sideLength));
-	}
-	private int calcWidth(int sideLength)
-	{
-		return (int)Math.round((double)this.workingImage.getWidth() * this.getScale(sideLength));
-	}
-	private double getScale(int sideLength)
-	{
-		if (this.workingImage == null)
-			return 0;
+		// for this just base it off of height
 		
-		if (this.workingImage.getHeight() > this.workingImage.getWidth())
+		// calc width based on max height
+		Dimension d = new Dimension();
+		d.height = this.getHeight();
+		
+		double hwRatio = (double)this.workingImage.getWidth() / (double)this.workingImage.getHeight();
+		d.width = (int)Math.round((double)this.getHeight() * hwRatio);
+		
+		if (d.width > this.getWidth())
 		{
-			return (double)sideLength / (double)this.workingImage.getHeight();
+			// calc height, width should be component width
+			d.width = this.getWidth();
+			d.height = (int)Math.round((double)this.getWidth() / hwRatio);
 		}
-		return (double)sideLength / (double)this.workingImage.getWidth();
+		
+		return d;
 	}
 	
 	private void processWorkingImage()
@@ -132,12 +131,23 @@ public class DisplayImage extends JComponent
 	{
 		g.setColor(new Color(255,0,0,255));
 		
-		double xScale = (double)this.calcWidth(this.getWidth()) / (double)this.workingImage.getWidth();
-		double yScale = (double)this.calcHeight(this.getHeight()) / (double)this.workingImage.getHeight();
+//		double xScale = (double)this.calcWidth(this.getWidth()) / (double)this.workingImage.getWidth();
+//		double yScale = (double)this.calcHeight(this.getHeight()) / (double)this.workingImage.getHeight();
+//		
+//		g.drawRect(this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos,
+//				this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos,
+//				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
+		
+		// scale factor should be 1px from source = n.n px on displayed
+		Dimension d = calcDimension();
+		
+		double xScale = (double)d.width / (double)this.workingImage.getWidth();
+		double yScale = (double)d.height / (double)this.workingImage.getHeight();
 		
 		g.drawRect(this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos,
 				this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos,
 				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
+		
 	}
 	
 	@Override
@@ -147,21 +157,23 @@ public class DisplayImage extends JComponent
         
         Graphics2D g2d = (Graphics2D) g;
         
-        int imageXPos = (int)((double)this.getX() + (double)this.getWidth() / 2.0 - (double)this.calcWidth(this.getWidth()) / 2.0);
-      	int imageYPos = (int)((double)this.getY() + (double)this.getHeight() / 2.0 - (double)this.calcHeight(this.getHeight()) / 2.0);
-      	
-//      	imageXPos = (int)((double)this.getX() + (double)this.getWidth() / 2);
+        Dimension d = calcDimension();
         
-//        g2d.setColor(new Color(0x685f59));
-////      g2d.drawRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-//        g2d.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        int imageXPos = (int)((double)this.getX() + (double)this.getWidth() / 2.0 - (double)d.width / 2.0);
+      	int imageYPos = (int)((double)this.getY() + (double)this.getHeight() / 2.0 - (double)d.height / 2.0);
       	
       	bg.drawBackground(g2d, this.getWidth(), this.getHeight());
 
+//        if (this.displayImage)
+//        g2d.drawImage(workingImage, imageXPos, imageYPos, this.calcWidth(this.getWidth()) + imageXPos, this.calcHeight(this.getHeight()) + imageYPos,
+//        		0, 0, workingImage.getWidth(), workingImage.getHeight(),
+//        		null);
+        
+        
         if (this.displayImage)
-        g2d.drawImage(workingImage, imageXPos, imageYPos, this.calcWidth(this.getWidth()) + imageXPos, this.calcHeight(this.getHeight()) + imageYPos,
-        		0, 0, workingImage.getWidth(), workingImage.getHeight(),
-        		null);
+	        g2d.drawImage(workingImage, imageXPos, imageYPos, d.width + imageXPos, d.height + imageYPos,
+	        		0, 0, workingImage.getWidth(), workingImage.getHeight(),
+	        		null);
         
         this.drawSelectionBox(g2d, imageXPos, imageYPos);
 

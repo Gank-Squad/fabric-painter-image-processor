@@ -7,6 +7,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.im4java.core.ConvertCmd;
+import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.ImageCommand;
 import org.im4java.core.Operation;
@@ -424,32 +425,27 @@ public class ProcessImg {
 		return null;
 	}
 	
-	
-	public static BufferedImage testStream(BufferedImage image)
-	{
+	public static BufferedImage loadImage(File file)
+	{	
+		ImageCommand cmd = new ImageCommand();
 		IMOperation op = new IMOperation();
+	
+		op.addRawArgs("magick", "convert");
 		
-		op.addImage();
-		op.resize(350);
-		op.addImage("png:-");
+		op.addImage(file.getAbsolutePath());
+		op.addImage("bmp:-");
 		
-		ConvertCmd convert = new ConvertCmd();
 		Stream2BufferedImage s2b = new Stream2BufferedImage();
-		convert.setOutputConsumer(s2b);
+		cmd.setOutputConsumer(s2b);
 		
 		try
 		{
-			convert.run(op,image);
+			cmd.run(op);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-		}
-		
-		
-		if (s2b.getImage() == null)
-		{
-			System.out.println("panic its nulL!!");
+			return null;
 		}
 		
 		return s2b.getImage();
