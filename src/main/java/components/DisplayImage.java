@@ -74,7 +74,8 @@ public class DisplayImage extends JComponent
 		Dimension d = new Dimension();
 		d.height = this.getHeight();
 		
-		double hwRatio = (double)this.workingImage.getWidth() / (double)this.workingImage.getHeight();
+		double hwRatio = displayImage ? (double)this.workingImage.getWidth() / (double)this.workingImage.getHeight() : 
+			(double)(xPanels * 32) / (double)(yPanels * 32);
 		d.width = (int)Math.round((double)this.getHeight() * hwRatio);
 		
 		if (d.width > this.getWidth())
@@ -141,13 +142,23 @@ public class DisplayImage extends JComponent
 		// scale factor should be 1px from source = n.n px on displayed
 		Dimension d = calcDimension();
 		
-		double xScale = (double)d.width / (double)this.workingImage.getWidth();
-		double yScale = (double)d.height / (double)this.workingImage.getHeight();
+		double xScale = displayImage ? (double)d.width / (double)this.workingImage.getWidth() : (double)d.width / (double)(xPanels * 32);
+		double yScale = displayImage ? (double)d.height / (double)this.workingImage.getHeight() : (double)d.height / (double)(yPanels * 32);
 		
 		g.drawRect(this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos,
 				this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos,
 				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
+		System.out.println("------");
+		System.out.println("" + d.width + ", " + this.workingImage.getWidth());
+		System.out.println("" + d.height + ", " + this.workingImage.getHeight());
+		System.out.println(xPanels * 32);
+		System.out.println(yPanels * 32);
+		System.out.println(displayImage);
 		
+//		g.drawRect(0,
+//				0,
+//				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
+//		
 	}
 	
 	@Override

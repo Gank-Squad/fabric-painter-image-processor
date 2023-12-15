@@ -1,34 +1,41 @@
+package gui;
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.im4java.core.IM4JavaException;
 
 import components.DisplayImage;
 import components.GuiBase;
 import components.PreviewImage;
+import components.filters.ImageDropTargetListener;
 import components.filters.ImageFilter;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
@@ -39,10 +46,12 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 
 	JButton openFileChooser, resetButton, saveButton, previewButton;
 	JFileChooser fc;
-	DisplayImage displayImage;
+	public DisplayImage displayImage;
 	JSpinner xPanels, yPanels, xScale, yScale, xOffset, yOffset;
 	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton;
 	private boolean resetting = false;
+	
+	public static final Base INSTANCE = new Base();
 	
 	public static void main(String[] args)
 	{
@@ -50,8 +59,8 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		Base base = new Base();
-		base.addComponentsToPane(frame.getContentPane());
+//		Base base = INSTANCE;
+		INSTANCE.addComponentsToPane(frame.getContentPane());
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -59,18 +68,26 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public void addComponentsToPane(Container pane)
 	{
-		pane.setLayout(new GridBagLayout());
+//		pane.setLayout(new GridBagLayout());
+		
+		JPanel settingsPanel = new JPanel();
+		settingsPanel.setLayout(new GridBagLayout());
+		settingsPanel.setBorder(null);
+		JPanel displayPanel = new JPanel();
+//		displayPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		displayPanel.setLayout(new BorderLayout());
+		displayPanel.setBorder(null);
+		
+		displayPanel.add(new JTextArea(10,10));
 		
 		GridBagConstraints c = new GridBagConstraints();	
 		displayImage = GuiBase.createDisplayImage();
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 5;
-		c.weighty = 5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 5;
-		c.gridheight = 5;
-		pane.add(displayImage, c);
+		displayPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		displayPanel.add(displayImage, BorderLayout.CENTER);
+		displayPanel.setTransferHandler(new TransferHandler("text"));
+		
+		DropTarget dropTarget = new DropTarget(displayPanel, DnDConstants.ACTION_COPY_OR_MOVE, new ImageDropTargetListener());
+        dropTarget.setDefaultActions(DnDConstants.ACTION_COPY_OR_MOVE);
 
 		
 		JLabel label = new JLabel("x panels ", SwingConstants.RIGHT);
@@ -79,7 +96,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 5;
 		c.gridy = 0;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		label = new JLabel("y panels ", SwingConstants.RIGHT);
 		c = new GridBagConstraints();
@@ -87,7 +104,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 7;
 		c.gridy = 0;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		label = new JLabel("x scale (%) ", SwingConstants.RIGHT);
 		c = new GridBagConstraints();
@@ -95,7 +112,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 5;
 		c.gridy = 1;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		label = new JLabel("y scale (%) ", SwingConstants.RIGHT);
 		c = new GridBagConstraints();
@@ -103,7 +120,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 7;
 		c.gridy = 1;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		
 		label = new JLabel("Dither Type ", SwingConstants.RIGHT);
@@ -113,7 +130,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 5;
 		c.gridy = 3;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		label = new JLabel("x offset ", SwingConstants.RIGHT);
 		c = new GridBagConstraints();
@@ -121,7 +138,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 5;
 		c.gridy = 2;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		label = new JLabel("y offset ", SwingConstants.RIGHT);
 		c = new GridBagConstraints();
@@ -129,7 +146,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 7;
 		c.gridy = 2;
-		pane.add(label, c);
+		settingsPanel.add(label, c);
 		
 		fc = GuiBase.createFileChooser();
 		fc.setFileFilter(new ImageFilter());
@@ -142,7 +159,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 5;
 		c.gridy = 4;
-		pane.add(openFileChooser, c);
+		settingsPanel.add(openFileChooser, c);
 		
 		
 		
@@ -155,7 +172,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.gridy = 0;
 		this.xPanels = new JSpinner(panelModel);
 		this.xPanels.addChangeListener(this);
-		pane.add(xPanels, c);
+		settingsPanel.add(xPanels, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -165,7 +182,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		panelModel = new SpinnerNumberModel(1, 1, 64, 1);
 		this.yPanels = new JSpinner(panelModel);
 		this.yPanels.addChangeListener(this);
-		pane.add(yPanels, c);
+		settingsPanel.add(yPanels, c);
 		
 		
 		c = new GridBagConstraints();
@@ -176,7 +193,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		panelModel = new SpinnerNumberModel(100.0, 50.0, 500.0, 5.0);
 		this.xScale = new JSpinner(panelModel);
 		this.xScale.addChangeListener(this);
-		pane.add(xScale, c);
+		settingsPanel.add(xScale, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -186,7 +203,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		panelModel = new SpinnerNumberModel(100.0, 50.0, 500.0, 5.0);
 		this.yScale = new JSpinner(panelModel);
 		this.yScale.addChangeListener(this);
-		pane.add(yScale, c);
+		settingsPanel.add(yScale, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -196,7 +213,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		panelModel = new SpinnerNumberModel(0, -128, 128, 1);
 		this.xOffset = new JSpinner(panelModel);
 		this.xOffset.addChangeListener(this);
-		pane.add(this.xOffset, c);
+		settingsPanel.add(this.xOffset, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -206,7 +223,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		panelModel = new SpinnerNumberModel(0, -128, 128, 1);
 		this.yOffset = new JSpinner(panelModel);
 		this.yOffset.addChangeListener(this);
-		pane.add(this.yOffset, c);
+		settingsPanel.add(this.yOffset, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -217,7 +234,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.floydSteinbergRadioButton.setText("Floyd Steinberg");
 		this.floydSteinbergRadioButton.setSelected(true);
 		this.floydSteinbergRadioButton.addActionListener(this);
-		pane.add(this.floydSteinbergRadioButton, c);
+		settingsPanel.add(this.floydSteinbergRadioButton, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -227,7 +244,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.riemersmaRadioButton = new JRadioButton();
 		this.riemersmaRadioButton.setText("Riemersma");
 		this.riemersmaRadioButton.addActionListener(this);
-		pane.add(this.riemersmaRadioButton, c);
+		settingsPanel.add(this.riemersmaRadioButton, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -237,7 +254,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.noneRadioButton = new JRadioButton();
 		this.noneRadioButton.setText("None");
 		this.noneRadioButton.addActionListener(this);
-		pane.add(this.noneRadioButton, c);
+		settingsPanel.add(this.noneRadioButton, c);
 		
 		ButtonGroup DitherButtonGroup = new ButtonGroup();
 		DitherButtonGroup.add(floydSteinbergRadioButton);
@@ -253,7 +270,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 6;
 		c.gridy = 4;
-		pane.add(this.resetButton, c);
+		settingsPanel.add(this.resetButton, c);
 		
 		this.saveButton = new JButton();
 		this.saveButton.setText("Save");
@@ -263,7 +280,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 7;
 		c.gridy = 4;
-		pane.add(this.saveButton, c);
+		settingsPanel.add(this.saveButton, c);
 		
 		this.previewButton = new JButton();
 		this.previewButton.setText("Preview");
@@ -273,7 +290,14 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 8;
 		c.gridy = 4;
-		pane.add(this.previewButton, c);
+		
+		settingsPanel.add(this.previewButton, c);
+		
+		JSplitPane splitPane = new JSplitPane(SwingConstants.VERTICAL, displayPanel, settingsPanel);
+		splitPane.setBorder(null);
+		splitPane.setResizeWeight(1.0);
+		pane.add(splitPane);
+		
 	}
 	
 	public void createImageFrame()
@@ -315,7 +339,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		}
 		else if (e.getSource() == openFileChooser)
 		{
-			FileDialog fd = new FileDialog(this, "sample title");
+			FileDialog fd = new FileDialog(this, "Select Image");
 			fd.setMode(FileDialog.LOAD);
 			fd.setVisible(true);
 			
