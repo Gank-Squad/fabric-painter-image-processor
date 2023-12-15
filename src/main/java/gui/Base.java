@@ -6,6 +6,9 @@ import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
@@ -44,7 +47,7 @@ import processing.dithering.DitherTypes;
 public class Base extends JFrame implements ActionListener, ChangeListener
 {
 
-	JButton openFileChooser, resetButton, saveButton, previewButton;
+	JButton openFileChooser, resetButton, saveButton, previewButton, pasteButton;
 	JFileChooser fc;
 	public DisplayImage displayImage;
 	JSpinner xPanels, yPanels, xScale, yScale, xOffset, yOffset;
@@ -256,6 +259,19 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.noneRadioButton.addActionListener(this);
 		settingsPanel.add(this.noneRadioButton, c);
 		
+		
+		c = new GridBagConstraints();
+		c.weightx = 0.5;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = 5;
+		c.gridy = 5;
+		this.pasteButton = new JButton();
+		this.pasteButton.setText("Paste Clipboard Contents");
+		this.pasteButton.addActionListener(this);
+		settingsPanel.add(this.pasteButton, c);
+		
+		
 		ButtonGroup DitherButtonGroup = new ButtonGroup();
 		DitherButtonGroup.add(floydSteinbergRadioButton);
 		DitherButtonGroup.add(riemersmaRadioButton);
@@ -421,6 +437,20 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			this.resetting = false;
 			
 			this.displayImage.resetAllFields();
+		}
+		else if (e.getSource() == this.pasteButton)
+		{
+			System.out.println("paste button pressed");
+			Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+			
+			try
+			{
+				BufferedImage image = (BufferedImage)cb.getData(DataFlavor.imageFlavor);
+				this.displayImage.updateImage(image);
+			} catch (Exception ex)
+			{
+				System.out.println("Something went wrong pasting from clipboard, likely not recognized as an image");
+			}
 		}
 		
 	}

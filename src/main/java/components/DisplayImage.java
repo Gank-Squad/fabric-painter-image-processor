@@ -59,6 +59,12 @@ public class DisplayImage extends JComponent
 	
 	public void updateImage(BufferedImage image)
 	{
+		if (image == null)
+		{
+			System.out.println("image was null");
+			return;
+		}
+		
 		this.originalImage = image;
 		this.displayImage = true;
 		this.imageChanged = true;
@@ -132,13 +138,6 @@ public class DisplayImage extends JComponent
 	{
 		g.setColor(new Color(255,0,0,255));
 		
-//		double xScale = (double)this.calcWidth(this.getWidth()) / (double)this.workingImage.getWidth();
-//		double yScale = (double)this.calcHeight(this.getHeight()) / (double)this.workingImage.getHeight();
-//		
-//		g.drawRect(this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos,
-//				this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos,
-//				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
-		
 		// scale factor should be 1px from source = n.n px on displayed
 		Dimension d = calcDimension();
 		
@@ -148,17 +147,6 @@ public class DisplayImage extends JComponent
 		g.drawRect(this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos,
 				this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos,
 				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
-		System.out.println("------");
-		System.out.println("" + d.width + ", " + this.workingImage.getWidth());
-		System.out.println("" + d.height + ", " + this.workingImage.getHeight());
-		System.out.println(xPanels * 32);
-		System.out.println(yPanels * 32);
-		System.out.println(displayImage);
-		
-//		g.drawRect(0,
-//				0,
-//				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
-//		
 	}
 	
 	@Override
