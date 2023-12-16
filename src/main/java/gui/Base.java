@@ -42,12 +42,13 @@ import components.filters.ImageDropTargetListener;
 import components.filters.ImageFilter;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
+import processing.TransferableImage;
 import processing.dithering.DitherTypes;
 
 public class Base extends JFrame implements ActionListener, ChangeListener
 {
 
-	JButton openFileChooser, resetButton, saveButton, previewButton, pasteButton;
+	JButton openFileChooser, resetButton, saveButton, previewButton, pasteButton, copyButton;
 	JFileChooser fc;
 	public DisplayImage displayImage;
 	JSpinner xPanels, yPanels, xScale, yScale, xOffset, yOffset;
@@ -271,6 +272,17 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.pasteButton.addActionListener(this);
 		settingsPanel.add(this.pasteButton, c);
 		
+		c = new GridBagConstraints();
+		c.weightx = 0.5;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = 7;
+		c.gridy = 5;
+		this.copyButton = new JButton();
+		this.copyButton.setText("copy image to clipboard");
+		this.copyButton.addActionListener(this);
+		settingsPanel.add(this.copyButton, c);
+		
 		
 		ButtonGroup DitherButtonGroup = new ButtonGroup();
 		DitherButtonGroup.add(floydSteinbergRadioButton);
@@ -450,6 +462,22 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			} catch (Exception ex)
 			{
 				System.out.println("Something went wrong pasting from clipboard, likely not recognized as an image");
+			}
+		}
+		else if (e.getSource() == this.copyButton)
+		{
+			
+			Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+			
+			try
+			{
+				System.out.println("copying image to clipboard");
+				cb.setContents(new TransferableImage(this.displayImage.getSelectionImage()), null);
+			}
+			catch (Exception ex)
+			{
+				System.out.println("Something went wrong copying image to clipboard");
+				ex.printStackTrace();
 			}
 		}
 		
