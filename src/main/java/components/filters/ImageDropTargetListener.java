@@ -63,12 +63,6 @@ public class ImageDropTargetListener implements DropTargetListener {
             
             Base.INSTANCE.displayImage.updateImage(ProcessImg.loadImage(file));
             
-            Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(Base.INSTANCE.displayImage);
-            Base.INSTANCE.xOffsetModel.setValue(0);
-            Base.INSTANCE.yOffsetModel.setValue(0);
-            Base.INSTANCE.xOffsetModel.setMaximum(p.x);
-            Base.INSTANCE.yOffsetModel.setMinimum(-p.y);
-            
             dtde.dropComplete(true);
             
         } catch (Exception ex) {

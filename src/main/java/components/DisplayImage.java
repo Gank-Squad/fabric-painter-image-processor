@@ -80,9 +80,22 @@ public class DisplayImage extends JComponent
 		this.displayImage = true;
 		this.imageChanged = true;
 		processWorkingImage();
+		
+		verifyAndResetSelectionBoxBounds();
+		
 		repaint();
 	}
-	 
+	
+	private void verifyAndResetSelectionBoxBounds()
+	{
+		Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this);
+		if (offsetX > p.x || offsetY > p.y)
+		{
+			offsetX = 0;
+			offsetY = 0;
+		}
+	}
+	
 	private Dimension calcDimension()
 	{
 		// for this just base it off of height
@@ -127,6 +140,9 @@ public class DisplayImage extends JComponent
 			System.out.println("dithering");
 			this.workingImage = Dither.ditherImage(this.workingImage, ditherType);
 			System.out.println();
+			
+			verifyAndResetSelectionBoxBounds();
+			
 		}
 		
 	}

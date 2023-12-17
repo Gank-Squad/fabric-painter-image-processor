@@ -52,11 +52,11 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	JButton openFileChooser, resetButton, saveButton, previewButton, pasteButton, copyButton;
 	JFileChooser fc;
 	public DisplayImage displayImage;
-	JSpinner xPanels, yPanels, xScale, yScale, xOffset, yOffset;
+	JSpinner xPanels, yPanels, xScale, yScale; //  , xOffset, yOffset
 	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton;
 	
-	public SpinnerNumberModel xOffsetModel;
-	public SpinnerNumberModel yOffsetModel;
+//	public SpinnerNumberModel xOffsetModel;
+//	public SpinnerNumberModel yOffsetModel;
 	
 	private boolean resetting = false;
 	
@@ -141,22 +141,6 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.gridy = 3;
 		settingsPanel.add(label, c);
 		
-		label = new JLabel("x offset ", SwingConstants.RIGHT);
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
-		c.gridy = 2;
-		settingsPanel.add(label, c);
-		
-		label = new JLabel("y offset ", SwingConstants.RIGHT);
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 7;
-		c.gridy = 2;
-		settingsPanel.add(label, c);
-		
 		fc = GuiBase.createFileChooser();
 		fc.setFileFilter(new ImageFilter());
 		
@@ -213,26 +197,6 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.yScale = new JSpinner(panelModel);
 		this.yScale.addChangeListener(this);
 		settingsPanel.add(yScale, c);
-		
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 6;
-		c.gridy = 2;
-		this.xOffsetModel = new SpinnerNumberModel(0, 0, 0, 1);
-		this.xOffset = new JSpinner(this.xOffsetModel);
-		this.xOffset.addChangeListener(this);
-		settingsPanel.add(this.xOffset, c);
-		
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 8;
-		c.gridy = 2;
-		this.yOffsetModel = new SpinnerNumberModel(0, 0, 0, 1);
-		this.yOffset = new JSpinner(this.yOffsetModel);
-		this.yOffset.addChangeListener(this);
-		settingsPanel.add(this.yOffset, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -385,12 +349,6 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 //					System.out.println(fd.getDirectory() + fd.getFile());
 //					displayImage.updateImage(ImageIO.read(new File(fd.getDirectory() + fd.getFile())));
 					displayImage.updateImage(ProcessImg.loadImage(new File(fd.getDirectory() + fd.getFile())));
-					
-					Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
-					this.xOffsetModel.setValue(0);
-					this.yOffsetModel.setValue(0);
-					this.xOffsetModel.setMaximum(p.x);
-					this.yOffsetModel.setMinimum(-p.y);
 				}
 					
 			}
@@ -456,8 +414,6 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			this.resetting = true;	
 			this.xPanels.setValue(1);
 			this.yPanels.setValue(1);
-			this.xOffset.setValue(0);
-			this.yOffset.setValue(0);
 			this.xScale.setValue(100.0);
 			this.yScale.setValue(100.0);
 			this.resetting = false;
@@ -477,12 +433,6 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			{
 				System.out.println("Something went wrong pasting from clipboard, likely not recognized as an image");
 			}
-			
-			Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
-			this.xOffsetModel.setValue(0);
-			this.yOffsetModel.setValue(0);
-			this.xOffsetModel.setMaximum(p.x);
-			this.yOffsetModel.setMinimum(-p.y);
 		}
 		else if (e.getSource() == this.copyButton)
 		{
@@ -507,35 +457,10 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		if (e.getSource() == this.xPanels || e.getSource() == this.yPanels)
 		{
 			this.displayImage.setPanels((int)(Integer)this.xPanels.getValue(), (int)(Integer)this.yPanels.getValue());
-			
-			// this is honestly not much better than doing it here, but I suppose it minimizes code duplication a little bit
-			Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
-			System.out.println("" + p.x + ", " + p.y);
-			if (p.x < (int)this.xOffsetModel.getValue())
-				this.xOffsetModel.setValue(0);
-			if (p.y < (int)this.yOffsetModel.getValue())
-				this.yOffsetModel.setValue(0);
-			
-			
-			this.xOffsetModel.setMaximum(p.x);
-			this.yOffsetModel.setMinimum(-p.y);
-		}
-		else if (e.getSource() == this.xOffset || e.getSource() == this.yOffset)
-		{
-			this.displayImage.setOffset((int)(Integer)this.xOffset.getValue(), -(int)(Integer)this.yOffset.getValue());
 		}
 		else if (e.getSource() == this.xScale || e.getSource() == this.yScale)
 		{
 			this.displayImage.setScale((double)(Double)this.xScale.getValue() / 100.0, (double)(Double)this.yScale.getValue() / 100.0);
-			Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
-			
-			if (p.x < (int)this.xOffsetModel.getValue())
-				this.xOffsetModel.setValue(0);
-			if (p.y < (int)this.yOffsetModel.getValue())
-				this.yOffsetModel.setValue(0);
-			
-			this.xOffsetModel.setMaximum(p.x);
-			this.yOffsetModel.setMinimum(-p.y);
 		}
 	}
 
