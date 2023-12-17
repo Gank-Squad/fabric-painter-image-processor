@@ -68,8 +68,18 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-//		Base base = INSTANCE;
-		INSTANCE.addComponentsToPane(frame.getContentPane());
+		if (ProcessImg.verifyImageMagick())
+		{
+			INSTANCE.addComponentsToPane(frame.getContentPane());
+		}
+		else
+		{
+			JLabel label = new JLabel("ERROR: ImageMagick is required and must be "
+					+ "added to path or in the same directory as this app -- "
+					+ "https://imagemagick.org/script/download.php");
+			frame.add(label);
+		}
+		
 		
 		frame.pack();
 		frame.setVisible(true);
