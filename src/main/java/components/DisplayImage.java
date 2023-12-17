@@ -4,10 +4,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
+import processing.ComponentLogicHelper;
 import processing.ProcessImg;
 import processing.dithering.Dither;
 import processing.dithering.DitherTypes;
@@ -40,6 +44,10 @@ public class DisplayImage extends JComponent
 	
 	private DisplayBackground bg;
 	
+	private MouseListener mouseListener = new MouseListener();
+	
+	private final DisplayImage self = this; 
+	
 	public DisplayImage()
 	{
 		this(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
@@ -50,6 +58,9 @@ public class DisplayImage extends JComponent
 		this.updateImage(image);
 		this.displayImage = true;
 		this.bg = new DisplayBackground();
+		
+		this.addMouseListener(mouseListener);
+		this.addMouseMotionListener(mouseListener);
 	}
 	
 	@Override
@@ -81,7 +92,7 @@ public class DisplayImage extends JComponent
 		d.height = this.getHeight();
 		
 		double hwRatio = displayImage ? (double)this.workingImage.getWidth() / (double)this.workingImage.getHeight() : 
-			(double)(xPanels * 32) / (double)(yPanels * 32);
+			(double)(xPanels) / (double)(yPanels);
 		d.width = (int)Math.round((double)this.getHeight() * hwRatio);
 		
 		if (d.width > this.getWidth())
@@ -149,6 +160,20 @@ public class DisplayImage extends JComponent
 				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
 	}
 	
+	/**
+	 * 
+	 * @param d the output from calcDimension, which I believe is the dimension of the working 
+	 * image when scaled to fill the display area
+	 * @return
+	 */
+	private Point getImagePos(Dimension d)
+	{
+		return new Point(
+				(int)((double)this.getX() + (double)this.getWidth() / 2.0 - (double)d.width / 2.0),
+				(int)((double)this.getY() + (double)this.getHeight() / 2.0 - (double)d.height / 2.0)
+				);
+	}
+	
 	@Override
 	public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -158,23 +183,19 @@ public class DisplayImage extends JComponent
         
         Dimension d = calcDimension();
         
-        int imageXPos = (int)((double)this.getX() + (double)this.getWidth() / 2.0 - (double)d.width / 2.0);
-      	int imageYPos = (int)((double)this.getY() + (double)this.getHeight() / 2.0 - (double)d.height / 2.0);
+//        int imageXPos = (int)((double)this.getX() + (double)this.getWidth() / 2.0 - (double)d.width / 2.0);
+//      	int imageYPos = (int)((double)this.getY() + (double)this.getHeight() / 2.0 - (double)d.height / 2.0);
+//      	
+      	Point imagePos = getImagePos(d);
       	
       	bg.drawBackground(g2d, this.getWidth(), this.getHeight());
-
-//        if (this.displayImage)
-//        g2d.drawImage(workingImage, imageXPos, imageYPos, this.calcWidth(this.getWidth()) + imageXPos, this.calcHeight(this.getHeight()) + imageYPos,
-//        		0, 0, workingImage.getWidth(), workingImage.getHeight(),
-//        		null);
-        
         
         if (this.displayImage)
-	        g2d.drawImage(workingImage, imageXPos, imageYPos, d.width + imageXPos, d.height + imageYPos,
+	        g2d.drawImage(workingImage, imagePos.x, imagePos.y, d.width + imagePos.x, d.height + imagePos.y,
 	        		0, 0, workingImage.getWidth(), workingImage.getHeight(),
 	        		null);
         
-        this.drawSelectionBox(g2d, imageXPos, imageYPos);
+        this.drawSelectionBox(g2d, imagePos.x, imagePos.y);
 
     }
 	
@@ -249,5 +270,145 @@ public class DisplayImage extends JComponent
 		
 		repaint();
 	}
-
+	
+	
+	private class MouseListener extends MouseAdapter {
+		
+		// mouse move events appear to contain no info on what button is pressed, so keep track here
+		boolean btn1Down = false;
+		int mouseX = 0;
+		int mouseY = 0;
+		int xOff = 0;
+		int yOff = 0;
+		int prevModifier = 0;
+		
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			if (e.getButton() != MouseEvent.BUTTON1)
+				return;
+			
+			System.out.println("mouse pressed");
+			
+			// check if mouse is inside bounds of selection box
+			Point imagePos = getImagePos(calcDimension());
+			int scaledX = convertScreenValToImageVal(e.getX());
+			int scaledImageX = convertScreenValToImageVal(imagePos.x);
+			if (!(scaledX <= (offsetX + xPanels * 32 + scaledImageX) && scaledX >= (offsetX + scaledImageX)))
+				return;
+				
+			int scaledY = convertScreenValToImageVal(e.getY());
+			int scaledImageY = convertScreenValToImageVal(imagePos.y);
+			if (!(scaledY <= (offsetY + yPanels * 32 + scaledImageY) && scaledY >= offsetY + scaledImageY))
+				return;
+			
+			btn1Down = true;
+			mouseX = e.getX();
+			mouseY = e.getY();
+			xOff = offsetX;
+			yOff = offsetY;
+			prevModifier = e.getModifiersEx();
+		}
+		
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			if (e.getButton() != MouseEvent.BUTTON1)
+				return;
+			
+			btn1Down = false;
+		}
+		
+		/**
+		 * converts a screen size relative value to an image size relative value, so 0->0, but 500 might ->128
+		 * @param x screen pixel value
+		 * @return x value relative to the working image size
+		 */
+		public int convertScreenValToImageVal(int x)
+		{
+			double componentFactor = Math.max(self.getWidth(), self.getHeight());
+			double imageFactor = Math.max(self.workingImage.getWidth(), self.workingImage.getHeight());
+			
+			double scale = imageFactor / componentFactor;
+			
+			return (int)Math.round((double)x * scale);
+		}
+		
+		@Override
+		public void mouseDragged(MouseEvent e)
+		{
+			if (!btn1Down)
+				return;
+			
+			// need to keep the current xoffset and yoffset in mind
+			// then, when user clicks, take their current mouse pos, will act as anchor point
+			// if they move their mouse x+=5, (so mouseX - e.getPox == 5), set xoffset = origxoffset + 5
+			// need to cap it as well, so don't let xoffset exceed whatever the max at that point should be
+			
+			Point max = ComponentLogicHelper.getSelectionBoxMaxBounds(self);
+			
+			int convertedX = convertScreenValToImageVal(mouseX - e.getX());
+			int convertedY = convertScreenValToImageVal(mouseY - e.getY());
+			
+			// will need to change this so that, once a modifier key is pressed
+			// mouseX. mouseY, xOff, and yOff are all reset as if the mouse was clicked again
+			// this will be to prevent pressing a modifier key from moving the selection box a ton
+			if (prevModifier != e.getModifiersEx())
+			{
+				mouseX = e.getX();
+				mouseY = e.getY();
+				xOff = offsetX;
+				yOff = offsetY;
+				prevModifier = e.getModifiersEx();
+			}
+			
+			if (e.getModifiersEx() == 1088)
+			{
+				convertedX *= 0.5;
+				convertedY *= 0.5;
+			}
+			else if (e.getModifiersEx() == 1152)
+			{
+				convertedX *= 2;
+				convertedY *= 2;
+			}
+			
+			int xOffset = xOff - convertedX;
+			int yOffset = yOff - convertedY;
+			
+//			mouseX = e.getX();
+//			mouseY = e.getY();
+			
+			if (xOffset < 0)
+				xOffset = 0;
+			else if (xOffset > max.x)
+				xOffset = max.x;
+			
+			if (yOffset < 0)
+				yOffset = 0;
+			else if (yOffset > max.y)
+				yOffset = max.y;
+			
+//			xOffset = (xOffset);
+//			yOffset = (yOffset);
+			
+//			System.out.println("x: " + xOffset + " y: " + yOffset);
+//			System.out.println("width: " + self.getWidth() + " height: " + self.getHeight());
+//			System.out.println("wwidth: " + self.workingImage.getWidth() + " wheight: " + self.workingImage.getHeight());
+//			
+			
+			offsetX = xOffset;
+			offsetY = yOffset;
+			
+			self.repaint();
+		}
+		
+		@Override
+		public void mouseMoved(MouseEvent e)
+		{
+//			System.out.println("" + e.getX() + ", " + e.getY());
+//			System.out.println("" + e.getXOnScreen() + ", " + e.getYOnScreen());
+//			System.out.println("----------");
+		}
+	}
 }

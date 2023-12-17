@@ -6,6 +6,7 @@ import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -28,7 +29,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
@@ -40,6 +40,7 @@ import components.GuiBase;
 import components.PreviewImage;
 import components.filters.ImageDropTargetListener;
 import components.filters.ImageFilter;
+import processing.ComponentLogicHelper;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
 import processing.TransferableImage;
@@ -53,6 +54,10 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	public DisplayImage displayImage;
 	JSpinner xPanels, yPanels, xScale, yScale, xOffset, yOffset;
 	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton;
+	
+	public SpinnerNumberModel xOffsetModel;
+	public SpinnerNumberModel yOffsetModel;
+	
 	private boolean resetting = false;
 	
 	public static final Base INSTANCE = new Base();
@@ -167,7 +172,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		
 		
-		SpinnerModel panelModel = new SpinnerNumberModel(1, 1, 64, 1);
+		SpinnerNumberModel panelModel = new SpinnerNumberModel(1, 1, 64, 1);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -214,8 +219,8 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 6;
 		c.gridy = 2;
-		panelModel = new SpinnerNumberModel(0, -128, 128, 1);
-		this.xOffset = new JSpinner(panelModel);
+		this.xOffsetModel = new SpinnerNumberModel(0, 0, 0, 1);
+		this.xOffset = new JSpinner(this.xOffsetModel);
 		this.xOffset.addChangeListener(this);
 		settingsPanel.add(this.xOffset, c);
 		
@@ -224,8 +229,8 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 8;
 		c.gridy = 2;
-		panelModel = new SpinnerNumberModel(0, -128, 128, 1);
-		this.yOffset = new JSpinner(panelModel);
+		this.yOffsetModel = new SpinnerNumberModel(0, 0, 0, 1);
+		this.yOffset = new JSpinner(this.yOffsetModel);
 		this.yOffset.addChangeListener(this);
 		settingsPanel.add(this.yOffset, c);
 		
@@ -333,8 +338,11 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		JFrame frame = new JFrame("Image");
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
 		
 		BufferedImage image = this.displayImage.getSelectionImage();
+		
+		System.out.println("" + image.getWidth() + ", " + image.getHeight());
 		
 		PreviewImage p = new PreviewImage(image);
 		
@@ -354,8 +362,8 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		}
 		
 		frame.setBounds(0,0,d.width,d.height);
-		
-		frame.add(p);
+
+		frame.add(p, BorderLayout.CENTER);
 		
 		frame.setVisible(true);
 	}
@@ -377,6 +385,12 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 //					System.out.println(fd.getDirectory() + fd.getFile());
 //					displayImage.updateImage(ImageIO.read(new File(fd.getDirectory() + fd.getFile())));
 					displayImage.updateImage(ProcessImg.loadImage(new File(fd.getDirectory() + fd.getFile())));
+					
+					Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
+					this.xOffsetModel.setValue(0);
+					this.yOffsetModel.setValue(0);
+					this.xOffsetModel.setMaximum(p.x);
+					this.yOffsetModel.setMinimum(-p.y);
 				}
 					
 			}
@@ -463,6 +477,12 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			{
 				System.out.println("Something went wrong pasting from clipboard, likely not recognized as an image");
 			}
+			
+			Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
+			this.xOffsetModel.setValue(0);
+			this.yOffsetModel.setValue(0);
+			this.xOffsetModel.setMaximum(p.x);
+			this.yOffsetModel.setMinimum(-p.y);
 		}
 		else if (e.getSource() == this.copyButton)
 		{
@@ -487,6 +507,18 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		if (e.getSource() == this.xPanels || e.getSource() == this.yPanels)
 		{
 			this.displayImage.setPanels((int)(Integer)this.xPanels.getValue(), (int)(Integer)this.yPanels.getValue());
+			
+			// this is honestly not much better than doing it here, but I suppose it minimizes code duplication a little bit
+			Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
+			System.out.println("" + p.x + ", " + p.y);
+			if (p.x < (int)this.xOffsetModel.getValue())
+				this.xOffsetModel.setValue(0);
+			if (p.y < (int)this.yOffsetModel.getValue())
+				this.yOffsetModel.setValue(0);
+			
+			
+			this.xOffsetModel.setMaximum(p.x);
+			this.yOffsetModel.setMinimum(-p.y);
 		}
 		else if (e.getSource() == this.xOffset || e.getSource() == this.yOffset)
 		{
@@ -495,6 +527,15 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		else if (e.getSource() == this.xScale || e.getSource() == this.yScale)
 		{
 			this.displayImage.setScale((double)(Double)this.xScale.getValue() / 100.0, (double)(Double)this.yScale.getValue() / 100.0);
+			Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(this.displayImage);
+			
+			if (p.x < (int)this.xOffsetModel.getValue())
+				this.xOffsetModel.setValue(0);
+			if (p.y < (int)this.yOffsetModel.getValue())
+				this.yOffsetModel.setValue(0);
+			
+			this.xOffsetModel.setMaximum(p.x);
+			this.yOffsetModel.setMinimum(-p.y);
 		}
 	}
 

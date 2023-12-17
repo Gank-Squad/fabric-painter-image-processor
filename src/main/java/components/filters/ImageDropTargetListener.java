@@ -1,5 +1,6 @@
 package components.filters;
 
+import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.util.List;
 
 import gui.Base;
+import processing.ComponentLogicHelper;
 import processing.ProcessImg;
 
 public class ImageDropTargetListener implements DropTargetListener {
@@ -61,6 +63,11 @@ public class ImageDropTargetListener implements DropTargetListener {
             
             Base.INSTANCE.displayImage.updateImage(ProcessImg.loadImage(file));
             
+            Point p = ComponentLogicHelper.getSelectionBoxMaxBounds(Base.INSTANCE.displayImage);
+            Base.INSTANCE.xOffsetModel.setValue(0);
+            Base.INSTANCE.yOffsetModel.setValue(0);
+            Base.INSTANCE.xOffsetModel.setMaximum(p.x);
+            Base.INSTANCE.yOffsetModel.setMinimum(-p.y);
             
             dtde.dropComplete(true);
             

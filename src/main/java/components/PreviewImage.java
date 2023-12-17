@@ -75,6 +75,7 @@ public class PreviewImage  extends JComponent {
 		Dimension d = calcDimension();
 		g2d.drawImage(this.image, this.getX(), this.getY(), this.getX() + d.width, this.getY() + d.height,
 				0, 0, this.image.getWidth(), this.image.getHeight(), null);
+		
 	}
 	
 	
