@@ -2,11 +2,9 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -15,17 +13,20 @@ import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -38,10 +39,9 @@ import javax.swing.event.ChangeListener;
 import components.DisplayImage;
 import components.GuiBase;
 import components.PreviewImage;
+import components.actionListeners.MenuBarActionListener;
 import components.filters.ImageDropTargetListener;
 import components.filters.ImageFilter;
-import processing.ComponentLogicHelper;
-import processing.ImageToInstructions;
 import processing.ProcessImg;
 import processing.TransferableImage;
 import processing.dithering.DitherTypes;
@@ -49,16 +49,32 @@ import processing.dithering.DitherTypes;
 public class Base extends JFrame implements ActionListener, ChangeListener
 {
 
-	JButton openFileChooser, resetButton, saveButton, previewButton, pasteButton, copyButton;
-	JFileChooser fc;
+	public JButton previewButton, pasteButton, copyButton; // resetButton, saveButton, openFileChooser  
+	public JFileChooser fc;
 	public DisplayImage displayImage;
-	JSpinner xPanels, yPanels, xScale, yScale; //  , xOffset, yOffset
+	public JSpinner xPanels, yPanels, xScale, yScale; //  , xOffset, yOffset
 	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton;
+	
+	JMenuBar menuBar;
+	JMenu fileMenu, editMenu, viewMenu, helpMenu;
+	JMenu ditherSubMenu;
+	public JMenuItem loadImageMenuItem, saveImageMenuItem;
+	
+	public JMenuItem resetImageMenuItem, changeColorPaletteMenuItem, convertToMonochromeMenuItem, changeCanvasResolutionMenuItem;
+	public JRadioButtonMenuItem floydSteinbergDitherMenuItem, riemersmaDitherMenuItem, noDitherMenuItem;
+	
+	public JMenuItem changeSelectionBoxColorMenuItem, onlyViewSelectionMenuItem, previewSelectionImageMenuItem;
+	
+	public JMenuItem helpMenuItem;
+	
+	// it might make more sense to make this a singleton since its hardcoded
+	MenuBarActionListener menuBarActionListener = new MenuBarActionListener();
 	
 //	public SpinnerNumberModel xOffsetModel;
 //	public SpinnerNumberModel yOffsetModel;
+	JSlider slider;
 	
-	private boolean resetting = false;
+	public boolean resetting = false;
 	
 	public static final Base INSTANCE = new Base();
 	
@@ -70,6 +86,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		if (ProcessImg.verifyImageMagick())
 		{
+			INSTANCE.createMenuBar(frame);
 			INSTANCE.addComponentsToPane(frame.getContentPane());
 		}
 		else
@@ -85,15 +102,84 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		frame.setVisible(true);
 	}
 	
+	public void createMenuBar(JFrame frame)
+	{
+		this.menuBar = new JMenuBar();
+		this.fileMenu = new JMenu("File");
+		this.editMenu = new JMenu("Edit");
+		this.viewMenu = new JMenu("View");
+		this.helpMenu = new JMenu("Help");
+//		JMenuItem loadImageMenuItem, saveImageMenuItem;
+//		JMenuItem resetImageMenuItem, changeColorPaletteMenuItem, convertToMonochromeMenuItem, changeCanvasResolutionMenuItem;
+//		JMenuItem changeSelectionBoxColorMenuItem, onlyViewSelectionMenuItem;
+//		JMenuItem helpMenuItem;
+		this.loadImageMenuItem = new JMenuItem("Load Image");
+		this.loadImageMenuItem.addActionListener(this.menuBarActionListener);
+		this.saveImageMenuItem = new JMenuItem("Save Image");
+		this.saveImageMenuItem.addActionListener(this.menuBarActionListener);
+		this.fileMenu.add(this.loadImageMenuItem);
+		this.fileMenu.add(this.saveImageMenuItem);
+		
+		
+		this.resetImageMenuItem = new JMenuItem("Reset Image");
+		this.resetImageMenuItem.addActionListener(this.menuBarActionListener);
+		
+		this.changeColorPaletteMenuItem = new JMenuItem("Change Color Palette");
+		this.changeColorPaletteMenuItem.addActionListener(this.menuBarActionListener);
+		
+		// I think it might be best to keep this a separate option for the time being
+		// I am not familiar enough with how converting to monochrome works
+		// so I'm not sure if just changing to a monochrome colorpalette would suffice, but probably not
+		this.convertToMonochromeMenuItem = new JMenuItem("Convert to Monochrome");
+		this.convertToMonochromeMenuItem.addActionListener(this.menuBarActionListener);
+		
+		this.ditherSubMenu = new JMenu("Dither Type");
+			this.floydSteinbergDitherMenuItem = new JRadioButtonMenuItem("Floyd Steinberg");
+			this.floydSteinbergDitherMenuItem.setSelected(true);
+			this.floydSteinbergDitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.floydSteinbergDitherMenuItem);
+			
+			this.riemersmaDitherMenuItem = new JRadioButtonMenuItem("Riemersma");
+			this.riemersmaDitherMenuItem.addActionListener(menuBarActionListener);
+			this.ditherSubMenu.add(this.riemersmaDitherMenuItem);
+			
+			this.noDitherMenuItem = new JRadioButtonMenuItem("None");
+			this.noDitherMenuItem.addActionListener(menuBarActionListener);
+			this.ditherSubMenu.add(this.noDitherMenuItem);
+		
+		ButtonGroup ditherButtonGroup = new ButtonGroup();
+		ditherButtonGroup.add(this.floydSteinbergDitherMenuItem);
+		ditherButtonGroup.add(this.riemersmaDitherMenuItem);
+		ditherButtonGroup.add(this.noDitherMenuItem);
+		
+		
+		this.editMenu.add(this.ditherSubMenu);
+		this.editMenu.add(this.resetImageMenuItem);
+		this.editMenu.add(this.changeColorPaletteMenuItem);
+		this.editMenu.add(this.convertToMonochromeMenuItem);
+		
+		
+		this.previewSelectionImageMenuItem = new JMenuItem("Preview Image");
+		this.previewSelectionImageMenuItem.addActionListener(this.menuBarActionListener);
+		
+		this.viewMenu.add(this.previewSelectionImageMenuItem);
+		
+		
+		this.menuBar.add(fileMenu);
+		this.menuBar.add(editMenu);
+		this.menuBar.add(viewMenu);
+		this.menuBar.add(helpMenu);
+		
+		frame.setJMenuBar(menuBar);
+	}
+	
 	public void addComponentsToPane(Container pane)
 	{
-//		pane.setLayout(new GridBagLayout());
-		
+
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setBorder(null);
 		JPanel displayPanel = new JPanel();
-//		displayPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		displayPanel.setLayout(new BorderLayout());
 		displayPanel.setBorder(null);
 		
@@ -142,28 +228,8 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		settingsPanel.add(label, c);
 		
 		
-		label = new JLabel("Dither Type ", SwingConstants.RIGHT);
-		label.setFont(label.getFont().deriveFont(Font.BOLD, 14f));
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
-		c.gridy = 3;
-		settingsPanel.add(label, c);
-		
 		fc = GuiBase.createFileChooser();
 		fc.setFileFilter(new ImageFilter());
-		
-		openFileChooser = new JButton();
-		openFileChooser.setText("select image");
-		openFileChooser.addActionListener(this);
-		c = new GridBagConstraints();
-		c.weightx = 1;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 5;
-		c.gridy = 4;
-		settingsPanel.add(openFileChooser, c);
-		
 		
 		
 		SpinnerNumberModel panelModel = new SpinnerNumberModel(1, 1, 64, 1);
@@ -208,86 +274,27 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.yScale.addChangeListener(this);
 		settingsPanel.add(yScale, c);
 		
+		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 6;
-		c.gridy = 3;
-		this.floydSteinbergRadioButton = new JRadioButton();
-		this.floydSteinbergRadioButton.setText("Floyd Steinberg");
-		this.floydSteinbergRadioButton.setSelected(true);
-		this.floydSteinbergRadioButton.addActionListener(this);
-		settingsPanel.add(this.floydSteinbergRadioButton, c);
-		
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 7;
-		c.gridy = 3;
-		this.riemersmaRadioButton = new JRadioButton();
-		this.riemersmaRadioButton.setText("Riemersma");
-		this.riemersmaRadioButton.addActionListener(this);
-		settingsPanel.add(this.riemersmaRadioButton, c);
-		
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 8;
-		c.gridy = 3;
-		this.noneRadioButton = new JRadioButton();
-		this.noneRadioButton.setText("None");
-		this.noneRadioButton.addActionListener(this);
-		settingsPanel.add(this.noneRadioButton, c);
-		
-		
-		c = new GridBagConstraints();
-		c.weightx = 0.5;
-		c.gridwidth = 2;
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 5;
-		c.gridy = 5;
+		c.gridy = 4;
 		this.pasteButton = new JButton();
-		this.pasteButton.setText("Paste Clipboard Contents");
+		this.pasteButton.setText("Paste");
 		this.pasteButton.addActionListener(this);
 		settingsPanel.add(this.pasteButton, c);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
-		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 7;
-		c.gridy = 5;
+		c.gridx = 5;
+		c.gridy = 4;
 		this.copyButton = new JButton();
-		this.copyButton.setText("copy image to clipboard");
+		this.copyButton.setText("Copy");
 		this.copyButton.addActionListener(this);
 		settingsPanel.add(this.copyButton, c);
 		
-		
-		ButtonGroup DitherButtonGroup = new ButtonGroup();
-		DitherButtonGroup.add(floydSteinbergRadioButton);
-		DitherButtonGroup.add(riemersmaRadioButton);
-		DitherButtonGroup.add(noneRadioButton);
-		
-		
-		this.resetButton = new JButton();
-		this.resetButton.setText("Reset");
-		this.resetButton.addActionListener(this);
-		c = new GridBagConstraints();
-		c.weightx = 1;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 6;
-		c.gridy = 4;
-		settingsPanel.add(this.resetButton, c);
-		
-		this.saveButton = new JButton();
-		this.saveButton.setText("Save");
-		this.saveButton.addActionListener(this);
-		c = new GridBagConstraints();
-		c.weightx = 1;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 7;
-		c.gridy = 4;
-		settingsPanel.add(this.saveButton, c);
 		
 		this.previewButton = new JButton();
 		this.previewButton.setText("Preview");
@@ -295,10 +302,13 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c = new GridBagConstraints();
 		c.weightx = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 8;
+		c.gridx = 7;
 		c.gridy = 4;
+		c.gridwidth = 2;
 		
 		settingsPanel.add(this.previewButton, c);
+		
+		
 		
 		JSplitPane splitPane = new JSplitPane(SwingConstants.VERTICAL, displayPanel, settingsPanel);
 		splitPane.setBorder(null);
@@ -336,7 +346,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		}
 		
 		frame.setBounds(0,0,d.width,d.height);
-
+		
 		frame.add(p, BorderLayout.CENTER);
 		
 		frame.setVisible(true);
@@ -346,27 +356,6 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		if (resetting)
 		{
 			// do nothing, just wait until its done resetting
-		}
-		else if (e.getSource() == openFileChooser)
-		{
-			FileDialog fd = new FileDialog(this, "Select Image");
-			fd.setMode(FileDialog.LOAD);
-			fd.setVisible(true);
-			
-			try {
-				if (fd.getFile() != null)
-				{
-//					System.out.println(fd.getDirectory() + fd.getFile());
-//					displayImage.updateImage(ImageIO.read(new File(fd.getDirectory() + fd.getFile())));
-					displayImage.updateImage(ProcessImg.loadImage(new File(fd.getDirectory() + fd.getFile())));
-				}
-					
-			}
-			catch (Exception ex)
-			{
-				ex.printStackTrace();
-			}
-			
 		}
 		// other components go here
 		else if (e.getSource() == this.floydSteinbergRadioButton)
@@ -381,54 +370,12 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		{
 			this.displayImage.setDitherType(DitherTypes.None);
 		}
-		else if (e.getSource() == this.saveButton)
-		{
-			int returnVal = fc.showSaveDialog(Base.this);
-			
-			if (returnVal == JFileChooser.APPROVE_OPTION)
-			{
-				try
-				{
-					File file = new File(fc.getSelectedFile().getAbsolutePath());
-					
-					// make sure it has the png file extension
-					String ext = ImageFilter.getExtension(file); 
-					if (ext == null || !ext.equals("png"))
-						file = new File(fc.getSelectedFile().getAbsolutePath() + ".png");
-					
-					ImageIO.write(this.displayImage.getSelectionImage(), "png", file);
-					
-					File dir = new File(file.getParentFile().getAbsolutePath() + File.separator + file.getName() + 
-							ImageToInstructions.instructionDirectoryAppension);
-					System.out.println(dir.getAbsolutePath());
-					ImageToInstructions.convertImageToInstructions(this.displayImage.getSelectionImage(), dir);
-				}
-				catch (Exception ex)
-				{
-					System.out.println("failed to save file: " + fc.getSelectedFile().getAbsoluteFile());
-				}
-			}
-		}
 		else if (e.getSource() == this.previewButton)
 		{
 			if (this.displayImage.getSelectionImage() != null)
 			{
 				createImageFrame();
 			}
-		}
-		else if (e.getSource() == this.resetButton)
-		{
-			
-			System.out.println("resetting");
-			
-			this.resetting = true;	
-			this.xPanels.setValue(1);
-			this.yPanels.setValue(1);
-			this.xScale.setValue(100.0);
-			this.yScale.setValue(100.0);
-			this.resetting = false;
-			
-			this.displayImage.resetAllFields();
 		}
 		else if (e.getSource() == this.pasteButton)
 		{

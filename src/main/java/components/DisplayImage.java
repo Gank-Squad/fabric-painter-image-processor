@@ -287,6 +287,8 @@ public class DisplayImage extends JComponent
 		repaint();
 	}
 	
+	public boolean isDisplayingImage() { return this.displayImage; }
+	
 	
 	private class MouseListener extends MouseAdapter {
 		
@@ -350,6 +352,8 @@ public class DisplayImage extends JComponent
 			return (int)Math.round((double)x * scale);
 		}
 		
+		
+		
 		@Override
 		public void mouseDragged(MouseEvent e)
 		{
@@ -392,9 +396,6 @@ public class DisplayImage extends JComponent
 			int xOffset = xOff - convertedX;
 			int yOffset = yOff - convertedY;
 			
-//			mouseX = e.getX();
-//			mouseY = e.getY();
-			
 			if (xOffset < 0)
 				xOffset = 0;
 			else if (xOffset > max.x)
@@ -405,19 +406,12 @@ public class DisplayImage extends JComponent
 			else if (yOffset > max.y)
 				yOffset = max.y;
 			
-//			xOffset = (xOffset);
-//			yOffset = (yOffset);
-			
-//			System.out.println("x: " + xOffset + " y: " + yOffset);
-//			System.out.println("width: " + self.getWidth() + " height: " + self.getHeight());
-//			System.out.println("wwidth: " + self.workingImage.getWidth() + " wheight: " + self.workingImage.getHeight());
-//			
-			
 			offsetX = xOffset;
 			offsetY = yOffset;
 			
 			self.repaint();
 		}
+		
 		
 		@Override
 		public void mouseMoved(MouseEvent e)
