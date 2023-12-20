@@ -160,6 +160,7 @@ public class DisplayImage extends JComponent
 
 	}
 	
+	public BufferedImage getOriginalImage() { return this.originalImage; }
 	
 	private void drawSelectionBox(Graphics2D g, int imageXPos, int imageYPos)
 	{

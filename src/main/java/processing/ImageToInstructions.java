@@ -18,6 +18,9 @@ public class ImageToInstructions {
 
 	public static final String instructionDirectoryAppension = "_InstructionSet";
 	
+	public static final String outputImageAppension = "_ConvertedImage";
+	public static final String originalImageAppension = "_OriginalImage";
+	
 	/**
 	 * converts the given image to raw instructions for the painting mod
 	 * @param image image to be converted

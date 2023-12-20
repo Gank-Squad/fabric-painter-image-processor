@@ -47,32 +47,50 @@ public class MenuBarActionListener implements ActionListener {
 		}
 		else if (Base.INSTANCE.saveImageMenuItem == e.getSource())
 		{
-			int returnVal = Base.INSTANCE.fc.showSaveDialog(Base.INSTANCE);
+//			int returnVal = Base.INSTANCE.fc.showSaveDialog(Base.INSTANCE);
 			
-			if (returnVal == JFileChooser.APPROVE_OPTION)
+			FileDialog fd = new FileDialog(Base.INSTANCE, "Save Folder", FileDialog.SAVE);
+			fd.setVisible(true);
+			
+			try
 			{
-				try
-				{
-					File file = new File(Base.INSTANCE.fc.getSelectedFile().getAbsolutePath());
-					
-					// make sure it has the png file extension
-					String ext = ImageFilter.getExtension(file); 
-					if (ext == null || !ext.equals("png"))
-						file = new File(Base.INSTANCE.fc.getSelectedFile().getAbsolutePath() + ".png");
-					
-					ImageIO.write(Base.INSTANCE.displayImage.getSelectionImage(), "png", file);
-					
-					File dir = new File(file.getParentFile().getAbsolutePath() + File.separator + file.getName() + 
-							ImageToInstructions.instructionDirectoryAppension);
-					System.out.println(dir.getAbsolutePath());
-					ImageToInstructions.convertImageToInstructions(Base.INSTANCE.displayImage.getSelectionImage(), dir);
-				}
-				catch (Exception ex)
-				{
-					System.out.println("failed to save file: " + Base.INSTANCE.fc.getSelectedFile().getAbsoluteFile());
-				}
+				if (fd.getFile() == null)
+					return;
+				
+				// create directory, save image in there, create csv files
+				// if image name 
+				
+				// create directory
+				File dir = new File(fd.getDirectory() + fd.getFile());
+				dir.mkdir();
+				
+				// create image output file inside directory, replace "image" with original file name at some point
+				// maybe cap length at something arbitrary like 16 char but probably wont bother with that
+				// or if I do make it an option to disable/enable
+				File file = new File(dir.getAbsolutePath() + File.separator + "image" + ImageToInstructions.outputImageAppension + ".png");
+				
+				// write output image to file
+				ImageIO.write(Base.INSTANCE.displayImage.getSelectionImage(), "png", file);
+				
+				// write original image to file, will probably have an option to disable this in the future
+				// but it just seems like a convenient thing to have
+				// would probably be best to copy the original source, but I am currently planning
+				// on implementing a feature that shrinks the original to decrease processing times
+				// but this is better than nothing
+				file = new File(dir.getAbsolutePath() + File.separator + "image" + ImageToInstructions.originalImageAppension + ".png");
+				
+				// write output image to file
+				ImageIO.write(Base.INSTANCE.displayImage.getOriginalImage(), "png", file);
+				
+				ImageToInstructions.convertImageToInstructions(Base.INSTANCE.displayImage.getSelectionImage(), dir);
+				
+				System.out.println("Saving output to " + dir.getAbsolutePath());
 			}
-			
+			catch (Exception ex)
+			{
+				System.out.println("failed to save file: " + fd.getFile());
+				ex.printStackTrace();
+			}
 		}
 		
 		// Edit Menu

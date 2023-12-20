@@ -42,6 +42,7 @@ import components.PreviewImage;
 import components.actionListeners.MenuBarActionListener;
 import components.filters.ImageDropTargetListener;
 import components.filters.ImageFilter;
+import gui.notification.Notification;
 import processing.ProcessImg;
 import processing.TransferableImage;
 import processing.dithering.DitherTypes;
@@ -173,9 +174,10 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		frame.setJMenuBar(menuBar);
 	}
 	
+
+	
 	public void addComponentsToPane(Container pane)
 	{
-
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setBorder(null);
@@ -321,7 +323,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	{
 		
 		JFrame frame = new JFrame("Image");
-		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		
 		BufferedImage image = this.displayImage.getSelectionImage();
