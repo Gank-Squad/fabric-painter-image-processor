@@ -450,4 +450,52 @@ public class ProcessImg {
 		
 		return s2b.getImage();
 	}
+	
+	/**
+	 * modify the contrast and HSV values of an image. All inputs are percentage based. 
+	 * @param image image to modify
+	 * @param hue the new hue value, a value of 100 will make no changes
+	 * @param saturation the new saturation value, a value of 100 will make no changes
+	 * @param brightness the new brightness value, a value of 100 will make no changes
+	 * @param contrast the new contrast value, a value of 0 will make no changes. Offsets black and white pixels equally, specify black offset.
+	 * @return the modified image
+	 */
+	public static BufferedImage modifyContrastAndHSV(BufferedImage image, float hue, float saturation, float brightness, float contrast) {
+		if (image == null)
+			return null;
+		
+		ImageCommand cmd = new ImageCommand();
+		IMOperation op = new IMOperation();
+		
+		op.addRawArgs("magick", "convert");
+		
+		File inputImage = ProcessImg.saveImage(image);
+		File outputImage = ProcessImg.getOutputFile();
+		
+		op.addImage(inputImage.getAbsolutePath());
+		
+		op.addRawArgs("-modulate", String.format("%f,%f,%f", brightness, saturation, hue));
+		
+		op.addRawArgs("-level", String.format("%f", contrast) + "%");
+		
+		op.addImage(outputImage.getAbsolutePath());
+		
+		try
+		{
+			cmd.run(op);
+			BufferedImage output = ImageIO.read(outputImage);
+			return output;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			inputImage.delete();
+			outputImage.delete();
+		}
+		
+		return null;
+	}
 }

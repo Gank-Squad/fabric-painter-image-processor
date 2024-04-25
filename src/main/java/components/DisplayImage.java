@@ -27,12 +27,18 @@ public class DisplayImage extends JComponent
 	private double scaleX = 1;
 	private double scaleY = 1;
 	
+	private float hue = 100;
+	private float saturation = 100;
+	private float brightness = 100;
+	private float contrast = 0;
+	
 	private int offsetX = 0;
 	private int offsetY = 0;
 	
 	private boolean displayImage = true;
 	private boolean imageChanged = true;
 	private boolean scaleChanged = true;
+	private boolean HSVCChanged = true;
 	
 	private DitherTypes ditherType = DitherTypes.FloydSteinberg;
 	private DitherTypes prevDitherType = ditherType;
@@ -123,7 +129,7 @@ public class DisplayImage extends JComponent
 		if (!displayImage)
 			return;
 		
-		if (ditherType != prevDitherType || imageChanged || scaleChanged || checkIfSizeChanged())
+		if (ditherType != prevDitherType || imageChanged || scaleChanged || checkIfSizeChanged() || HSVCChanged)
 		{
 			imageChanged = false;
 			scaleChanged = false;
@@ -135,6 +141,9 @@ public class DisplayImage extends JComponent
 					(int)Math.round((double)this.xPanels * 32.0), 
 					(int)Math.round((double)this.yPanels * 32.0),
 					this.scaleX, this.scaleY, false);
+			
+			// adjust HSV and contrast
+			this.workingImage = ProcessImg.modifyContrastAndHSV(this.workingImage, hue, saturation, brightness, contrast);
 			
 			// dither image
 			System.out.println("dithering");
@@ -261,6 +270,27 @@ public class DisplayImage extends JComponent
 	}
 	public double getScaleX() { return this.scaleX; }
 	public double getScaleY() { return this.scaleY; }
+	
+	/**
+	 * set (H)Hue, (S)Saturation, (V)Brightness, (C)Contrast. All values are percentages
+	 * @param hue value of 100 makes no change
+	 * @param saturation value of 100 makes no change
+	 * @param brightness value of 100 makes no change, 0 is black
+	 * @param contrast value of 0 makes no change, this param wants the to black offset
+	 */
+	public void setHSVC(float hue, float saturation, float brightness, float contrast) {
+		this.HSVCChanged = hue != this.hue || this.saturation != saturation || this.brightness != brightness || this.contrast != contrast;
+		this.hue = hue;
+		this.saturation = saturation;
+		this.brightness = brightness;
+		this.contrast = contrast;
+		this.processWorkingImage();
+		this.repaint();
+	}
+	public void setHue(float hue) { setHSVC(hue, saturation, brightness, contrast); }
+	public void setSaturation(float saturation) { setHSVC(hue, saturation, brightness, contrast); }
+	public void setBrightness(float brightness) { setHSVC(hue, saturation, brightness, contrast); }
+	public void setContrast(float contrast) { setHSVC(hue, saturation, brightness, contrast); }
 	
 	public BufferedImage getImage()
 	{

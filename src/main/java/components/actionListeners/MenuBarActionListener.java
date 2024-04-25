@@ -1,16 +1,18 @@
 package components.actionListeners;
 
+import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
-import components.filters.ImageFilter;
 import gui.Base;
+import gui.notification.Notification;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
 import processing.dithering.DitherTypes;
@@ -133,6 +135,17 @@ public class MenuBarActionListener implements ActionListener {
 		
 		
 		// Help Menu
+		else if (Base.INSTANCE.helpMenuItem == e.getSource())
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new BorderLayout());
+			
+			panel.add(new JLabel("test 123"), BorderLayout.CENTER);
+			
+			panel.setSize(250,250);
+			
+			Notification.createAlert("test123", "Help Window");
+		}
 	}
 
 }

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -52,12 +53,14 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 
 	public JButton previewButton, pasteButton, copyButton; // resetButton, saveButton, openFileChooser  
 	public JFileChooser fc;
+	public JSlider hueSlider, brightnessSlider, saturationSlider, contrastSlider;
+	public JLabel hueLabel, brightnessLabel, saturationLabel, contrastLabel;
 	public DisplayImage displayImage;
 	public JSpinner xPanels, yPanels, xScale, yScale; //  , xOffset, yOffset
 	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton;
 	
 	JMenuBar menuBar;
-	JMenu fileMenu, editMenu, viewMenu, helpMenu;
+	public JMenu fileMenu, editMenu, viewMenu, helpMenu;
 	JMenu ditherSubMenu;
 	public JMenuItem loadImageMenuItem, saveImageMenuItem;
 	
@@ -73,7 +76,12 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 //	public SpinnerNumberModel xOffsetModel;
 //	public SpinnerNumberModel yOffsetModel;
-	JSlider slider;
+	
+	private static JFrame frame;
+	
+	public static Point getFrameLocation() { return new Point(frame.getX(), frame.getY()); }
+	
+	public static JFrame getFrame() { return frame; } 
 	
 	public boolean resetting = false;
 	
@@ -81,7 +89,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public static void main(String[] args)
 	{
-		JFrame frame = new JFrame("Fabric Painter Image Processor");
+		frame = new JFrame("Fabric Painter Image Processor");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -165,6 +173,10 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		
 		this.viewMenu.add(this.previewSelectionImageMenuItem);
 		
+		this.helpMenuItem = new JMenuItem("help button");
+		this.helpMenuItem.addActionListener(this.menuBarActionListener);
+		
+		this.helpMenu.add(this.helpMenuItem);
 		
 		this.menuBar.add(fileMenu);
 		this.menuBar.add(editMenu);
@@ -311,6 +323,97 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		settingsPanel.add(this.previewButton, c);
 		
 		
+		this.hueSlider = new JSlider(0,200, 100);
+		this.hueSlider.setPaintTicks(true);
+		this.hueSlider.setPaintLabels(true);
+		this.hueSlider.setMinorTickSpacing(10);
+		this.hueSlider.addChangeListener(this);
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 6;
+		c.gridy = 5;
+		c.gridwidth = 3;
+		settingsPanel.add(this.hueSlider, c);
+		
+		this.hueLabel = new JLabel();
+		this.hueLabel.setText("Hue: " + this.hueSlider.getValue());
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 5;
+		c.gridy = 5;
+		c.gridwidth = 1;
+		settingsPanel.add(this.hueLabel, c);
+		
+		this.saturationSlider = new JSlider(0,200, 100);
+		this.saturationSlider.setPaintTicks(true);
+		this.saturationSlider.setPaintLabels(true);
+		this.saturationSlider.setMinorTickSpacing(10);
+		this.saturationSlider.addChangeListener(this);
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 6;
+		c.gridy = 6;
+		c.gridwidth = 3;
+		settingsPanel.add(this.saturationSlider, c);
+		
+		this.saturationLabel = new JLabel();
+		this.saturationLabel.setText("Saturation: " + this.saturationSlider.getValue());
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 5;
+		c.gridy = 6;
+		c.gridwidth = 1;
+		settingsPanel.add(this.saturationLabel, c);
+		
+		this.brightnessSlider = new JSlider(0,200, 100);
+		this.brightnessSlider.setPaintTicks(true);
+		this.brightnessSlider.setPaintLabels(true);
+		this.brightnessSlider.setMinorTickSpacing(10);
+		this.brightnessSlider.addChangeListener(this);
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 6;
+		c.gridy = 7;
+		c.gridwidth = 3;
+		settingsPanel.add(this.brightnessSlider, c);
+		
+		this.brightnessLabel = new JLabel();
+		this.brightnessLabel.setText("Brightness: " + this.brightnessSlider.getValue());
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 5;
+		c.gridy = 7;
+		c.gridwidth = 1;
+		settingsPanel.add(this.brightnessLabel, c);
+		
+		this.contrastSlider = new JSlider(0,100, 0);
+		this.contrastSlider.setPaintTicks(true);
+		this.contrastSlider.setPaintLabels(true);
+		this.contrastSlider.setMinorTickSpacing(10);
+		this.contrastSlider.addChangeListener(this);
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 6;
+		c.gridy = 8;
+		c.gridwidth = 3;
+		settingsPanel.add(this.contrastSlider, c);
+		
+		this.contrastLabel = new JLabel();
+		this.contrastLabel.setText("Contrast: " + this.contrastSlider.getValue());
+		c = new GridBagConstraints();
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 5;
+		c.gridy = 8;
+		c.gridwidth = 1;
+		settingsPanel.add(this.contrastLabel, c);
 		
 		JSplitPane splitPane = new JSplitPane(SwingConstants.VERTICAL, displayPanel, settingsPanel);
 		splitPane.setBorder(null);
@@ -391,6 +494,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			} catch (Exception ex)
 			{
 				System.out.println("Something went wrong pasting from clipboard, likely not recognized as an image");
+				Notification.createAlert("Failed to paste from clipboard!", "Error");
 			}
 		}
 		else if (e.getSource() == this.copyButton)
@@ -410,6 +514,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			}
 		}
 		
+		
 	}
 
 	public void stateChanged(ChangeEvent e) {
@@ -420,6 +525,26 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		else if (e.getSource() == this.xScale || e.getSource() == this.yScale)
 		{
 			this.displayImage.setScale((double)(Double)this.xScale.getValue() / 100.0, (double)(Double)this.yScale.getValue() / 100.0);
+		}
+		else if (e.getSource() == this.hueSlider) 
+		{
+			this.hueLabel.setText("Hue: " + this.hueSlider.getValue());
+			this.displayImage.setHue(this.hueSlider.getValue());
+		}
+		else if (e.getSource() == this.saturationSlider) 
+		{
+			this.saturationLabel.setText("Saturation: " + this.saturationSlider.getValue());
+			this.displayImage.setSaturation(this.saturationSlider.getValue());
+		}
+		else if (e.getSource() == this.brightnessSlider) 
+		{
+			this.brightnessLabel.setText("Brightness: " + this.brightnessSlider.getValue());
+			this.displayImage.setBrightness(this.brightnessSlider.getValue());
+		}
+		else if (e.getSource() == this.contrastSlider) 
+		{
+			this.contrastLabel.setText("Contrast: " + this.contrastSlider.getValue());
+			this.displayImage.setContrast(this.contrastSlider.getValue());
 		}
 	}
 
