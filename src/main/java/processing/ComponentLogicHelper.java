@@ -14,6 +14,11 @@ public class ComponentLogicHelper {
 	public static Point getSelectionBoxMaxBounds(DisplayImage displayImage)
 	{
 		BufferedImage img = displayImage.getImage();	
+		if (img == null) {
+			System.out.println("Something went very wrong, and display image is null");
+			return new Point(32,32);
+		}
+			
 		return new Point(img.getWidth() - (displayImage.getXPanels() * 32), img.getHeight() - (displayImage.getYPanels() * 32));
 	}
 }

@@ -1,17 +1,19 @@
 package processing;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
-import org.im4java.core.ConvertCmd;
-import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.ImageCommand;
 import org.im4java.core.Operation;
 import org.im4java.core.Stream2BufferedImage;
+import org.im4java.process.Pipe;
 
 import processing.colors.Colors;
 
@@ -111,28 +113,26 @@ public class ProcessImg {
 		
 		op.addRawArgs("magick");
 		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
-		
-		op.addImage(inputImage.getAbsolutePath());
-		
-		op.addRawArgs("-resize", String.format("%dx%d", width,height) + (ignoreAspectRatio ? "\\!" : ""));
-		
-		op.addImage(outputImage.getAbsolutePath());
-		
 		try
 		{
+			Stream2BufferedImage s2b = new Stream2BufferedImage();
+			cmd.setOutputConsumer(s2b);
+			
+			Pipe pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+			cmd.setInputProvider(pipe);
+			
+			op.addImage("-");
+			
+			op.addRawArgs("-resize", String.format("%dx%d", width,height) + (ignoreAspectRatio ? "\\!" : ""));
+			
+			op.addImage("-");
+			
 			cmd.run(op);
-			return ImageIO.read(outputImage);
+			return s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
 		}
 		
 		return null;
@@ -153,32 +153,30 @@ public class ProcessImg {
 		ImageCommand cmd = new ImageCommand();
 		IMOperation op = new IMOperation();
 		
-		op.addRawArgs("magick");
-		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
-		
-		op.addImage(inputImage.getAbsolutePath());
-		
-		op.addRawArgs("-resize", 
-				xScale*100 + "%x" + yScale*100 + "%!");
-		// String.format("%d%x%d%!", xScale * 100, yScale * 100
-		
-		op.addImage(outputImage.getAbsolutePath());
-		
 		try
 		{
+			op.addRawArgs("magick");
+			
+			Stream2BufferedImage s2b = new Stream2BufferedImage();
+			cmd.setOutputConsumer(s2b);
+			
+			Pipe pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+			cmd.setInputProvider(pipe);
+			
+			op.addImage("-");
+			
+			op.addRawArgs("-resize", 
+					xScale*100 + "%x" + yScale*100 + "%!");
+			// String.format("%d%x%d%!", xScale * 100, yScale * 100
+			
+			op.addImage("-");
+			
 			cmd.run(op);
-			return ImageIO.read(outputImage);
+			return s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
 		}
 		
 		return null;
@@ -203,58 +201,52 @@ public class ProcessImg {
 		
 		op.addRawArgs("magick");
 
+		Stream2BufferedImage s2b = new Stream2BufferedImage();
+		cmd.setOutputConsumer(s2b);
 		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
+		Pipe pipe;
+		try {
+			pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		cmd.setInputProvider(pipe);
 		
 		double widthScaleFactor = (double)width / (double)image.getWidth();
 		double heightScaleFactor = (double)height / (double)image.getHeight();
 		
-		int scaledWidth = width;
-		int scaledHeight = height;
+//		int scaledWidth = width;
+//		int scaledHeight = height;
 		
-		op.addImage(inputImage.getAbsolutePath());
+		op.addImage("-");
 		
 		// width will be the one to exceed the desired measure, height will match
 		if (widthScaleFactor < heightScaleFactor)
 		{
-			scaledWidth = (int) Math.round(width * heightScaleFactor);
+//			scaledWidth = (int) Math.round(width * heightScaleFactor);
 			op.addRawArgs("-resize", String.format("x%d", height) /*+ "\\!"*/);
-			
-			// calculate width based on the height
-//			int newWidth = (int)Math.round((double)image.getWidth() / (double)image.getHeight() * height);
-//			
-//			op.addRawArgs("-resize", String.format("%dx%d", newWidth, height) + "\\!");
 		}
 		else
 		{
-			scaledHeight = (int)Math.round(height * widthScaleFactor);
+//			scaledHeight = (int)Math.round(height * widthScaleFactor);
 			op.addRawArgs("-resize", String.format("%dx", width) /*+ "\\!"*/);
-			
-//			int newHeight = (int)Math.round((double)image.getHeight() / (double)image.getWidth() * width);
-//			
-//			op.addRawArgs("-resize", String.format("%dx%d", width, newHeight) + "\\!");
 		}
 		
 		
 		// adding the \\! to make sure it matches properly, just in case the rounding/casting wouldn't match up properly w/ image magick
 //		op.addRawArgs("-resize", String.format("%dx%d", scaledWidth, scaledHeight) /*+ "\\!"*/);
 		
-		op.addImage(outputImage.getAbsolutePath());
+		op.addImage("-");
 		
 		try
 		{
 			cmd.run(op);
-			return crop ? ProcessImg.cropImage(image, 0, 0, width, height) : ImageIO.read(outputImage);
+			return crop ? ProcessImg.cropImage(image, 0, 0, width, height) : s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
 		}
 		
 		return null;
@@ -283,8 +275,17 @@ public class ProcessImg {
 		op.addRawArgs("magick");
 
 		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
+		Stream2BufferedImage s2b = new Stream2BufferedImage();
+		cmd.setOutputConsumer(s2b);
+		
+		Pipe pipe;
+		try {
+			pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		cmd.setInputProvider(pipe);
 		
 		double widthScaleFactor = (double)width / (double)image.getWidth();
 		double heightScaleFactor = (double)height / (double)image.getHeight();
@@ -295,8 +296,7 @@ public class ProcessImg {
 		if (Math.abs(yScale - 1) < 0.00001)
 			yScale = 1;
 		
-		
-		op.addImage(inputImage.getAbsolutePath());
+		op.addImage("-");
 		
 		// width will be the one to exceed the desired measure, height will match
 		if (widthScaleFactor < heightScaleFactor)
@@ -313,21 +313,16 @@ public class ProcessImg {
 			op.addRawArgs("-resize", String.format("%dx%d", (int)Math.round((double)width * xScale), newHeight) + "\\!");
 		}
 		
-		op.addImage(outputImage.getAbsolutePath());
+		op.addImage("-");
 		
 		try
 		{
 			cmd.run(op);
-			return crop ? ProcessImg.cropImage(image, 0, 0, width, height) : ImageIO.read(outputImage);
+			return crop ? ProcessImg.cropImage(image, 0, 0, width, height) : s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
 		}
 		
 		return null;
@@ -347,33 +342,31 @@ public class ProcessImg {
 		ImageCommand cmd = new ImageCommand();
 		IMOperation op = new IMOperation();
 		
-		op.addRawArgs("magick");
-		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
-		
-		op.addImage(inputImage.getAbsolutePath());
-		
-		op.addRawArgs("-resize", Double.toString(scale) + "%");
-		
-		op.addImage(outputImage.getAbsolutePath());
-		
 		try
 		{
+			op.addRawArgs("magick");
+			
+			Stream2BufferedImage s2b = new Stream2BufferedImage();
+			cmd.setOutputConsumer(s2b);
+			
+			Pipe pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+			cmd.setInputProvider(pipe);
+			
+			op.addImage("-");
+			
+			op.addRawArgs("-resize", Double.toString(scale) + "%");
+			
+			op.addImage("-");
+			
 			cmd.run(op);
-			BufferedImage output = ImageIO.read(outputImage);
-			return output;
+//			BufferedImage output = ImageIO.read(outputImage);
+			return s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
-		}
-		
+
 		return null;
 	}
 	
@@ -395,31 +388,29 @@ public class ProcessImg {
 		ImageCommand cmd = new ImageCommand();
 		IMOperation op = new IMOperation();
 		
-		op.addRawArgs("magick", "convert");
-		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
-		
-		op.addImage(inputImage.getAbsolutePath());
-		
-		op.addRawArgs("-crop", String.format("%dx%d+%d+%d", width,height,x,y));
-		
-		op.addImage(outputImage.getAbsolutePath());
-		
 		try
 		{
+			op.addRawArgs("magick", "convert");
+			
+			Stream2BufferedImage s2b = new Stream2BufferedImage();
+			cmd.setOutputConsumer(s2b);
+			
+			Pipe pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+			cmd.setInputProvider(pipe);
+			
+			op.addImage("-");
+			
+			op.addRawArgs("-crop", String.format("%dx%d+%d+%d", width,height,x,y));
+			
+			op.addImage("-");
+			
 			cmd.run(op);
-			BufferedImage output = ImageIO.read(outputImage);
-			return output;
+			
+			return s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
 		}
 		
 		return null;
@@ -451,6 +442,12 @@ public class ProcessImg {
 		return s2b.getImage();
 	}
 	
+	public static InputStream getInputStreamFromBufferedImage(BufferedImage image) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		ImageIO.write(image,  "png", os);
+		return (InputStream)(new ByteArrayInputStream(os.toByteArray()));
+	}
+	
 	/**
 	 * modify the contrast and HSV values of an image. All inputs are percentage based. 
 	 * @param image image to modify
@@ -467,35 +464,34 @@ public class ProcessImg {
 		ImageCommand cmd = new ImageCommand();
 		IMOperation op = new IMOperation();
 		
-		op.addRawArgs("magick", "convert");
-		
-		File inputImage = ProcessImg.saveImage(image);
-		File outputImage = ProcessImg.getOutputFile();
-		
-		op.addImage(inputImage.getAbsolutePath());
-		
-		op.addRawArgs("-modulate", String.format("%f,%f,%f", brightness, saturation, hue));
-		
-		op.addRawArgs("-level", String.format("%f", contrast) + "%");
-		
-		op.addImage(outputImage.getAbsolutePath());
-		
 		try
 		{
+			op.addRawArgs("magick", "convert");
+			
+			Stream2BufferedImage s2b = new Stream2BufferedImage();
+			cmd.setOutputConsumer(s2b);
+			
+			Pipe pipe = new Pipe(getInputStreamFromBufferedImage(image), null);
+			cmd.setInputProvider(pipe);
+			
+			op.addImage("-");
+			
+			op.addRawArgs("-modulate", String.format("%f,%f,%f", brightness, saturation, hue));
+			
+			op.addRawArgs("-level", String.format("%f", contrast) + "%");
+			
+			op.addImage("-");
+			
 			cmd.run(op);
-			BufferedImage output = ImageIO.read(outputImage);
-			return output;
+			
+			return s2b.getImage();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		finally
-		{
-			inputImage.delete();
-			outputImage.delete();
-		}
 		
 		return null;
 	}
+	
 }
