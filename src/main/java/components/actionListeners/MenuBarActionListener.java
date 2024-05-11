@@ -122,7 +122,10 @@ public class MenuBarActionListener implements ActionListener {
 		{
 			Base.INSTANCE.displayImage.setDitherType(DitherTypes.None);
 		}
-		
+		else if (Base.INSTANCE.atkinsonDitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Atkinson);
+		}
 		
 		// View Menu
 		else if (Base.INSTANCE.previewSelectionImageMenuItem == e.getSource())

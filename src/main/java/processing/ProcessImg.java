@@ -84,7 +84,7 @@ public class ProcessImg {
 		}
 		return file;
 	}
-	private static BufferedImage createPaletteImage()
+	public static BufferedImage createPaletteImage()
 	{
 		BufferedImage image = new BufferedImage(1,Colors.colorArr.length, BufferedImage.TYPE_INT_RGB);
 		for (int i = 0; i < Colors.colorArr.length; i++)

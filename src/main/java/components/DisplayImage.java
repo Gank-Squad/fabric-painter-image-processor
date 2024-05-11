@@ -151,7 +151,7 @@ public class DisplayImage extends JComponent
 			System.out.println();
 			
 			verifyAndResetSelectionBoxBounds();
-			
+
 		}
 		
 	}
@@ -246,6 +246,7 @@ public class DisplayImage extends JComponent
 	
 	public void setDitherType(DitherTypes ditherType)
 	{
+		System.out.println(ditherType.toString());
 		if (ditherType == this.ditherType)
 			return;
 		this.prevDitherType = this.ditherType;
