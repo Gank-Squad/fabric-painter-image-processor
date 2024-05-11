@@ -135,6 +135,11 @@ public class MenuBarActionListener implements ActionListener {
 				Base.INSTANCE.createImageFrame();
 			}
 		}
+		else if (Base.INSTANCE.toggleGridLinesMenuItem == e.getSource())
+		{
+			Base.INSTANCE.displayImage.setMinorGridLines(Base.INSTANCE.toggleGridLinesMenuItem.getState());
+//			Base.INSTANCE.displayImage.setMinorGridLines(true);
+		}
 		
 		
 		// Help Menu

@@ -2,7 +2,6 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -18,6 +17,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -64,6 +64,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	JMenu ditherSubMenu;
 	public JMenuItem loadImageMenuItem, saveImageMenuItem;
 	
+	public JCheckBoxMenuItem toggleGridLinesMenuItem;
 	public JMenuItem resetImageMenuItem, changeColorPaletteMenuItem, convertToMonochromeMenuItem, changeCanvasResolutionMenuItem;
 	public JRadioButtonMenuItem floydSteinbergDitherMenuItem, riemersmaDitherMenuItem, noDitherMenuItem, atkinsonDitherMenuItem;
 	
@@ -176,7 +177,12 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.previewSelectionImageMenuItem = new JMenuItem("Preview Image");
 		this.previewSelectionImageMenuItem.addActionListener(this.menuBarActionListener);
 		
+		this.toggleGridLinesMenuItem = new JCheckBoxMenuItem("Toggle grid lines");
+		this.toggleGridLinesMenuItem.addActionListener(this.menuBarActionListener);
+		this.toggleGridLinesMenuItem.setSelected(true);
+		
 		this.viewMenu.add(this.previewSelectionImageMenuItem);
+		this.viewMenu.add(this.toggleGridLinesMenuItem);
 		
 		this.helpMenuItem = new JMenuItem("help button");
 		this.helpMenuItem.addActionListener(this.menuBarActionListener);

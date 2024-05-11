@@ -40,6 +40,8 @@ public class DisplayImage extends JComponent
 	private boolean scaleChanged = true;
 	private boolean HSVCChanged = true;
 	
+	private boolean showMinorGridLines = true;
+	
 	private DitherTypes ditherType = DitherTypes.FloydSteinberg;
 	private DitherTypes prevDitherType = ditherType;
 	
@@ -186,6 +188,35 @@ public class DisplayImage extends JComponent
 				(int)Math.round(32 * this.xPanels * xScale) - 1, (int)Math.round(32 * this.yPanels * yScale) - 1);
 	}
 	
+	private void drawMinorGridLines(Graphics2D g, int imageXPos, int imageYPos)
+	{
+		g.setColor(new Color(180,30,30,255));
+		
+		// scale factor should be 1px from source = n.n px on displayed
+		Dimension d = calcDimension();
+		
+		double xScale = displayImage ? (double)d.width / (double)this.workingImage.getWidth() : (double)d.width / (double)(xPanels * 32);
+		double yScale = displayImage ? (double)d.height / (double)this.workingImage.getHeight() : (double)d.height / (double)(yPanels * 32);
+		
+		// draw vertical lines
+		for (int i = 1; i < xPanels; i++) {
+			g.drawLine(this.getX() + (int)Math.round((double)this.offsetX * xScale+ i*xScale*32) + imageXPos,
+					this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos,
+					this.getX() + (int)Math.round((double)this.offsetX * xScale + i*xScale*32) + imageXPos,
+					this.getY() + (int)Math.round((double)this.offsetY * yScale) + imageYPos + (int)Math.round(32 * this.yPanels * yScale) - 1
+					);
+		}
+		
+		// draw horizontal lines
+		for (int i = 1; i < yPanels; i++) {
+			g.drawLine(this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos,
+					this.getY() + (int)Math.round((double)this.offsetY * yScale + i*32*yScale) + imageYPos,
+					this.getX() + (int)Math.round((double)this.offsetX * xScale) + imageXPos + (int)Math.round(32 * this.xPanels * xScale) - 1,
+					this.getY() + (int)Math.round((double)this.offsetY * yScale + i*32*yScale) + imageYPos
+					);
+		}
+	}
+	
 	/**
 	 * 
 	 * @param d the output from calcDimension, which I believe is the dimension of the working 
@@ -222,8 +253,16 @@ public class DisplayImage extends JComponent
 	        		null);
         
         this.drawSelectionBox(g2d, imagePos.x, imagePos.y);
+        if (this.showMinorGridLines)
+        	this.drawMinorGridLines(g2d, imagePos.x, imagePos.y);
 
     }
+	
+	public void setMinorGridLines(boolean showLines) {
+		this.showMinorGridLines = showLines;
+		this.repaint();
+	}
+	public boolean getMinorGridLinesBool() { return this.showMinorGridLines; }
 	
 	public void setPanels(int xPanels, int yPanels)
 	{
