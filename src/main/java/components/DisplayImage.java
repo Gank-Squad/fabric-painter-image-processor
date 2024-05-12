@@ -37,7 +37,7 @@ public class DisplayImage extends JComponent
 	private int offsetX = 0;
 	private int offsetY = 0;
 	
-	private boolean displayImage = true;
+	private boolean displayImage = false;
 	private boolean imageChanged = true;
 	private boolean scaleChanged = true;
 	private boolean HSVCChanged = true;
@@ -64,7 +64,7 @@ public class DisplayImage extends JComponent
 	
 	public DisplayImage()
 	{
-		this(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
+		this(null);
 		this.displayImage = false;
 	}
 	public DisplayImage(BufferedImage image)

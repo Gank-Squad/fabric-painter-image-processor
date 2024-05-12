@@ -67,33 +67,25 @@ public class  ErrorDiffusionDither  {
 			return;
 		}
 		
-		matrix = AtkinsonMatrix;
-		
 		final int height = image.getHeight();
 		final int width = image.getWidth();
 		final int mHeight = matrix.length;
 		final int mWidth = matrix[0].length;
-//		int xoffset = mWidth / 2;
-		int xoffset = 2;
-//		for (int i = 0; i < mWidth; i++) {
-//			if (matrix[0][i] != 0) {
-//				xoffset = i;
-//				break;
-//			}
-//		}
 		
-//		for (int i = 0; i < mHeight; i++) {
-//			for (int j = 0; j < mWidth; j++) {
-//				System.out.print(AtkinsonMatrix[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
+		int xoffset = mWidth / 2;
+		for (int i = 0; i < mWidth; i++) {
+			if (matrix[0][i] != 0) {
+				xoffset = i;
+				break;
+			}
+		}
 		
+
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int oldPixel = image.getRGB(x, y);
 				int newPixel = Colors.HexToColor(oldPixel).RGBAsHex();
-//				System.out.println("" + newPixel + " " + RGBfromHex(newPixel)[0]);
+				
 				image.setRGB(x, y, newPixel);
 				
 				int[] quantErr = getQuantizationError(oldPixel,newPixel);
@@ -110,7 +102,7 @@ public class  ErrorDiffusionDither  {
 							continue;
 						if (y + y1 >= height)
 							break; // ideally exit out of both loops
-//						System.out.println("x:" + (x + wx) + " y:" + (y+y1));
+						
 						image.setRGB(wx, y+y1, 
 								addQuantizationError(
 										image.getRGB(wx, y+y1), 
@@ -124,53 +116,6 @@ public class  ErrorDiffusionDither  {
 		}
 		
 	}
-	
-//	public static  void ditherImage(BufferedImage image, int[][] matrix) {
-//		if (image == null) {
-//			return;
-//		}
-//		
-//		
-//		final int height = image.getHeight();
-//		final int width = image.getWidth();
-//		final int mHeight = matrix.length;
-//		final int mWidth = matrix[0].length;
-//		int xoffset = mWidth / 2;
-//		for (int i = 0; i < mWidth; i++) {
-//			if (matrix[0][i] != 0) {
-//				xoffset = i;
-//				break;
-//			}
-//		}
-//		for (int y = 0; y < height; y++) {
-//			for (int x = 0; x < width; x++) {
-//				int oldPixel = image.getRGB(x, y);
-//				int newPixel = Colors.HexToColor(oldPixel).RGBAsHex();
-//				
-//				image.setRGB(x, y, newPixel);
-//				
-//				int[] quantErr = getQuantizationError(oldPixel,newPixel);
-//				
-//				for (int y1 = 0; y1 < mHeight; y1++) {
-//					for (int x1 = 0; x1 < mWidth; x1++) {
-//						if (matrix[y1][x1] == 0.0f)
-//							continue;
-//						int wx = x1 - xoffset;
-//						if (wx + x >= width)
-//							break;
-//						if (x - wx < 0)
-//							continue;
-//						if (y + y1 >= height)
-//							break; // ideally exit out of both loops
-//						image.setRGB(x+x1, y+y1, addQuantizationError(image.getRGB(x+x1, y+y1), quantErr, matrix[y1][x1]));
-//					}
-//				}
-//				
-//				
-//			}
-//		}
-//		
-//	}
 
 	
 	public static final float[][] AtkinsonMatrix = {
@@ -183,6 +128,40 @@ public class  ErrorDiffusionDither  {
 			{ 0,			0,			7.0f/16.0f },
 			{ 3.0f/16.0f,	5.0f/16.0f,	1.0f/16.0f }
 	};
+	
+	public static final float[][] Simple2D = {
+			{ 0, 0.5f },
+			{ 0.5f, 0 }
+	};
+	
+	public static final float[][] JarvisJudiceNinke = {
+			{ 0,			0,			0,			7.0f/48.0f,	5.0f/48.0f },
+			{ 3.0f/48.0f,	5.0f/48.0f,	7.0f/48.0f,	5.0f/48.0f, 3.0f/48.0f },
+			{ 1.0f/48.0f,	3.0f/48.0f,	5.0f/48.0f,	3.0f/48.0f,	1.0f/48.0f }
+	};
+	
+	public static final float[][] Stucki = {
+			{ 0,			0, 			0,			8.0f/42.0f,	4.0f/42.0f },
+			{2.0f/42.0f,	4.0f/42.0f,	8.0f/42.0f,	4.0f/42.0f,	2.0f/42.0f },
+			{1.0f/42.0f,	2.0f/42.0f,	4.0f/42.0f,	2.0f/42.0f,	1.0f/42.0f }
+	};
+	
+	public static final float[][] Sierra3 = {
+			{ 0,			0,			0,			5.0f/32.0f,	3.0f/32.0f },
+			{ 2.0f/32.0f,	4.0f/32.0f,	5.0f/32.0f,	4.0f/32.0f,	2.0f/32.0f },
+			{ 0,			2.0f/32.0f,	3.0f/32.0f,	2.0f/32.0f,	0		   }
+	};
+	
+	public static final float[][] Sierra2 = {
+			{ 0,			0,			0,			4.0f/16.0f,	3.0f/16.0f },
+			{ 1.0f/16.0f,	2.0f/16.0f,	3.0f/16.0f,	2.0f/16.0f, 1.0f/16.0f }
+	};
+	
+	public static final float[][] Burkes = {
+			{ 0,			0,			0,			8.0f/32.0f,	4.0f/32.0f },
+			{2.0f/32.0f,	4.0f/32.0f,	8.0f/32.0f,	4.0f/32.0f,	2.0f/32.0f }
+	};
+	
 	
 	
 }
