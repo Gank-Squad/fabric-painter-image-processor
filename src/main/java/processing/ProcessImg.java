@@ -15,6 +15,7 @@ import org.im4java.core.Operation;
 import org.im4java.core.Stream2BufferedImage;
 import org.im4java.process.Pipe;
 
+import gui.Base;
 import processing.colors.Colors;
 
 public class ProcessImg {
@@ -76,12 +77,8 @@ public class ProcessImg {
 		
 		System.out.println("palette file does not exist. creating");
 		
-		try {
-			ImageIO.write(createPaletteImage(), "png", file);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		updatePaletteImage(Base.INSTANCE.displayImage.getPalette());
+		
 		return file;
 	}
 	public static BufferedImage createPaletteImage()
@@ -89,10 +86,19 @@ public class ProcessImg {
 		BufferedImage image = new BufferedImage(1,Colors.colorArr.length, BufferedImage.TYPE_INT_RGB);
 		for (int i = 0; i < Colors.colorArr.length; i++)
 		{
-			image.setRGB(0, i, Colors.colorArr[i].RGBAsHex());
+//			image.setRGB(0, i, Colors.colorArr[i].RGBAsHex());
+			image.setRGB(0, i, i);
 		}
 		
 		return image;
+	}
+	public static void updatePaletteImage(BufferedImage palette) {
+		File file = new File("paletteImage.png");
+		try {
+			ImageIO.write(Base.INSTANCE.displayImage.getPalette(), "png", file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**

@@ -140,8 +140,8 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		// I think it might be best to keep this a separate option for the time being
 		// I am not familiar enough with how converting to monochrome works
 		// so I'm not sure if just changing to a monochrome colorpalette would suffice, but probably not
-		this.convertToMonochromeMenuItem = new JMenuItem("Convert to Monochrome");
-		this.convertToMonochromeMenuItem.addActionListener(this.menuBarActionListener);
+//		this.convertToMonochromeMenuItem = new JMenuItem("Convert to Monochrome");
+//		this.convertToMonochromeMenuItem.addActionListener(this.menuBarActionListener);
 		
 		this.ditherSubMenu = new JMenu("Dither Type");
 			this.floydSteinbergDitherMenuItem = new JRadioButtonMenuItem("Floyd Steinberg");
@@ -171,7 +171,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.editMenu.add(this.ditherSubMenu);
 		this.editMenu.add(this.resetImageMenuItem);
 		this.editMenu.add(this.changeColorPaletteMenuItem);
-		this.editMenu.add(this.convertToMonochromeMenuItem);
+//		this.editMenu.add(this.convertToMonochromeMenuItem);
 		
 		
 		this.previewSelectionImageMenuItem = new JMenuItem("Preview Image");

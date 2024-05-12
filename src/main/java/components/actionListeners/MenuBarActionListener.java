@@ -15,6 +15,8 @@ import gui.Base;
 import gui.notification.Notification;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
+import processing.colors.Color;
+import processing.colors.Colors;
 import processing.dithering.DitherTypes;
 
 public class MenuBarActionListener implements ActionListener {
@@ -107,6 +109,20 @@ public class MenuBarActionListener implements ActionListener {
 			Base.INSTANCE.displayImage.resetAllFields();
 			
 			Base.INSTANCE.resetting = false;
+		}
+		else if (Base.INSTANCE.changeColorPaletteMenuItem == e.getSource())
+		{
+			System.out.println("removing colors");
+			Color[] c = new Color[Colors.colorArr.length - 3];
+			for (int i = 0; i < Colors.colorArr.length - 3; i++) {
+				c[i] = Colors.colorArr[i];
+				
+			}
+			Base.INSTANCE.displayImage.removeColorsFromPalette(c);
+//			Base.INSTANCE.displayImage.removeColorFromPalette(Colors.fromString("ink_sac1"));
+//			Base.INSTANCE.displayImage.removeColorFromPalette(Colors.fromString("ink_sac2"));
+//			Base.INSTANCE.displayImage.removeColorFromPalette(Colors.fromString("ink_sac3"));
+			
 		}
 		
 			// dither submenu

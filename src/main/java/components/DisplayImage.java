@@ -8,11 +8,13 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
 import processing.ComponentLogicHelper;
 import processing.ProcessImg;
+import processing.colors.Colors;
 import processing.dithering.Dither;
 import processing.dithering.DitherTypes;
 
@@ -39,13 +41,17 @@ public class DisplayImage extends JComponent
 	private boolean imageChanged = true;
 	private boolean scaleChanged = true;
 	private boolean HSVCChanged = true;
+	private boolean paletteChanged = true;
 	
 	private boolean showMinorGridLines = true;
+	
 	
 	private DitherTypes ditherType = DitherTypes.FloydSteinberg;
 	private DitherTypes prevDitherType = ditherType;
 	
 	private static final String uiClassID = "DisplayImage";
+	
+	private ArrayList<processing.colors.Color> disabledColors = new ArrayList<>();
 	
 	private BufferedImage originalImage;
 	private BufferedImage workingImage;
@@ -126,22 +132,44 @@ public class DisplayImage extends JComponent
 		return d;
 	}
 	
+	public BufferedImage getPalette() {
+		BufferedImage image = new BufferedImage(1,Colors.colorArr.length - this.disabledColors.size(), BufferedImage.TYPE_INT_RGB);
+		int iter = 0;
+		for (int i = 0; i < Colors.colorArr.length; i++)
+		{
+			if (this.disabledColors.contains(Colors.colorArr[i])) {
+				continue;
+			}
+			image.setRGB(0, iter, Colors.colorArr[i].RGBAsHex());
+			iter++;
+		}
+		System.out.println(image.getHeight());
+		return image;
+	}
+	
 	private void processWorkingImage()
 	{
 		if (!displayImage)
 			return;
 		
-		if (ditherType != prevDitherType || imageChanged || scaleChanged || checkIfSizeChanged() || HSVCChanged)
+		if (paletteChanged) {
+			System.out.println("updaing palette image");
+			ProcessImg.updatePaletteImage(getPalette());	
+		}
+		
+		if (ditherType != prevDitherType || imageChanged || scaleChanged || checkIfSizeChanged() || HSVCChanged || paletteChanged)
 		{
 			imageChanged = false;
 			scaleChanged = false;
 			prevDitherType = ditherType;
+			HSVCChanged = false;
+			paletteChanged = false;
 			
 			// resize image
 			System.out.println("resizing");
 			this.workingImage = ProcessImg.scaleImageExceed1Dimension(this.originalImage, 
-					(int)Math.round((double)this.xPanels * 32.0), 
-					(int)Math.round((double)this.yPanels * 32.0),
+					(int)Math.round((double)this.xPanels * (float)canvasSize), 
+					(int)Math.round((double)this.yPanels * (float)canvasSize),
 					this.scaleX, this.scaleY, false);
 			
 			// adjust HSV and contrast
@@ -175,7 +203,7 @@ public class DisplayImage extends JComponent
 	
 	private void drawSelectionBox(Graphics2D g, int imageXPos, int imageYPos)
 	{
-		g.setColor(new Color(255,0,0,255));
+		g.setColor(new java.awt.Color(255,0,0,255));
 		
 		// scale factor should be 1px from source = n.n px on displayed
 		Dimension d = calcDimension();
@@ -190,7 +218,7 @@ public class DisplayImage extends JComponent
 	
 	private void drawMinorGridLines(Graphics2D g, int imageXPos, int imageYPos)
 	{
-		g.setColor(new Color(180,30,30,255));
+		g.setColor(new java.awt.Color(180,30,30,255));
 		
 		// scale factor should be 1px from source = n.n px on displayed
 		Dimension d = calcDimension();
@@ -360,6 +388,46 @@ public class DisplayImage extends JComponent
 	
 	public boolean isDisplayingImage() { return this.displayImage; }
 	
+	public void removeColorFromPalette(processing.colors.Color c) {
+		if (disabledColors.contains(c))
+			return;
+		disabledColors.add(c);
+		this.paletteChanged = true;
+		this.processWorkingImage();
+		this.repaint();
+	}
+	public void removeColorsFromPalette(processing.colors.Color[] c) {
+		for (int i = 0; i < c.length; i++)
+		{
+			if (disabledColors.contains(c[i]))
+				continue;
+			disabledColors.add(c[i]);
+		}
+		this.paletteChanged = true;
+		this.processWorkingImage();
+		this.repaint();
+	}
+	public void addColorToPalette(processing.colors.Color c) {
+		if (!disabledColors.remove(c))
+			return;
+		this.paletteChanged = true;
+		this.processWorkingImage();
+		this.repaint();
+	}
+	public void addColorsToPalette(processing.colors.Color[] c) {
+		for (int i = 0; i < c.length; i++) {
+			disabledColors.remove(c);
+		}
+		this.paletteChanged = true;
+		this.processWorkingImage();
+		this.repaint();
+	}
+	public void clearPaletteRestrictions() {
+		disabledColors.clear();
+		this.paletteChanged = true;
+		this.processWorkingImage();
+		this.repaint();
+	}
 	
 	private class MouseListener extends MouseAdapter {
 		
