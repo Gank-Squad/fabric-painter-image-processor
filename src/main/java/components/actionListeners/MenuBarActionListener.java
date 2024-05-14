@@ -142,6 +142,34 @@ public class MenuBarActionListener implements ActionListener {
 		{
 			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Atkinson);
 		}
+		else if (Base.INSTANCE.floydSteinberg2DitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.FloydSteinberg2);
+		}
+		else if (Base.INSTANCE.simple2dDitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Simple2D);
+		}
+		else if (Base.INSTANCE.jarvisJudiceNinkeDitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.JarvisJudiceNinke);
+		}
+		else if (Base.INSTANCE.stuckiDitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Stucki);
+		}
+		else if (Base.INSTANCE.sierra3DitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Sierra3);
+		}
+		else if (Base.INSTANCE.sierra2DitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Sierra2);
+		}
+		else if (Base.INSTANCE.burkesDitherMenuItem == e.getSource()) 
+		{
+			Base.INSTANCE.displayImage.setDitherType(DitherTypes.Burkes);
+		}
 		
 		// View Menu
 		else if (Base.INSTANCE.previewSelectionImageMenuItem == e.getSource())

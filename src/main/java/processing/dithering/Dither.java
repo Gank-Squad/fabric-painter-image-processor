@@ -69,8 +69,28 @@ public class Dither {
 		case Riemersma:
 			op.dither("Riemersma");
 			break;
-		default:
+		case FloydSteinberg2:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.FloydSteinbergMatrix);
 			return input;
+		case Simple2D:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.Simple2D);
+			return input;
+		case JarvisJudiceNinke:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.JarvisJudiceNinke);
+			return input;
+		case Stucki:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.Stucki);
+			return input;
+		case Sierra3:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.Sierra3);
+			return input;
+		case Sierra2:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.Sierra2);
+			return input;
+		case Burkes:
+			ErrorDiffusionDither.ditherImage(input, ErrorDiffusionDither.Burkes);
+			return input;
+		
 		}
 		
 		try {

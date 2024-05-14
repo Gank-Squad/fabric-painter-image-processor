@@ -57,7 +57,9 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	public JLabel hueLabel, brightnessLabel, saturationLabel, contrastLabel;
 	public DisplayImage displayImage;
 	public JSpinner xPanels, yPanels, xScale, yScale; //  , xOffset, yOffset
-	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton, atkinsonRadioButton;
+//	JRadioButton floydSteinbergRadioButton, riemersmaRadioButton, noneRadioButton, atkinsonRadioButton,
+//					floydSteinberg2RadioButton, simple2DRadioButton, jarvisJudiceNinkeRadioButton,
+//					stuckiRadioButton, sierra3RadioButton, sierra2RadioButton, burkesRadioButton;
 	
 	JMenuBar menuBar;
 	public JMenu fileMenu, editMenu, viewMenu, helpMenu;
@@ -66,7 +68,9 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public JCheckBoxMenuItem toggleGridLinesMenuItem;
 	public JMenuItem resetImageMenuItem, changeColorPaletteMenuItem, convertToMonochromeMenuItem, changeCanvasResolutionMenuItem;
-	public JRadioButtonMenuItem floydSteinbergDitherMenuItem, riemersmaDitherMenuItem, noDitherMenuItem, atkinsonDitherMenuItem;
+	public JRadioButtonMenuItem floydSteinbergDitherMenuItem, riemersmaDitherMenuItem, noDitherMenuItem, atkinsonDitherMenuItem,
+									floydSteinberg2DitherMenuItem, simple2dDitherMenuItem, jarvisJudiceNinkeDitherMenuItem,
+									stuckiDitherMenuItem, sierra3DitherMenuItem, sierra2DitherMenuItem, burkesDitherMenuItem;
 	
 	public JMenuItem changeSelectionBoxColorMenuItem, onlyViewSelectionMenuItem, previewSelectionImageMenuItem;
 	
@@ -157,6 +161,34 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			this.riemersmaDitherMenuItem.addActionListener(menuBarActionListener);
 			this.ditherSubMenu.add(this.riemersmaDitherMenuItem);
 			
+			this.floydSteinberg2DitherMenuItem = new JRadioButtonMenuItem("Floyd Steinberg 2");
+			this.floydSteinberg2DitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.floydSteinberg2DitherMenuItem);
+			
+			this.simple2dDitherMenuItem = new JRadioButtonMenuItem("Simple 2D");
+			this.simple2dDitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.simple2dDitherMenuItem);
+			
+			this.jarvisJudiceNinkeDitherMenuItem = new JRadioButtonMenuItem("Jarvis Judice Ninke");
+			this.jarvisJudiceNinkeDitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.jarvisJudiceNinkeDitherMenuItem);
+			
+			this.stuckiDitherMenuItem = new JRadioButtonMenuItem("Stucki");
+			this.stuckiDitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.stuckiDitherMenuItem);
+
+			this.sierra3DitherMenuItem = new JRadioButtonMenuItem("Sierra 3");
+			this.sierra3DitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.sierra3DitherMenuItem);
+			
+			this.sierra2DitherMenuItem = new JRadioButtonMenuItem("Sierra 2");
+			this.sierra2DitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.sierra2DitherMenuItem);
+			
+			this.burkesDitherMenuItem = new JRadioButtonMenuItem("Burkes");
+			this.burkesDitherMenuItem.addActionListener(this.menuBarActionListener);
+			this.ditherSubMenu.add(this.burkesDitherMenuItem);
+			
 			this.noDitherMenuItem = new JRadioButtonMenuItem("None");
 			this.noDitherMenuItem.addActionListener(menuBarActionListener);
 			this.ditherSubMenu.add(this.noDitherMenuItem);
@@ -165,6 +197,13 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		ditherButtonGroup.add(this.floydSteinbergDitherMenuItem);
 		ditherButtonGroup.add(this.atkinsonDitherMenuItem);
 		ditherButtonGroup.add(this.riemersmaDitherMenuItem);
+		ditherButtonGroup.add(this.floydSteinberg2DitherMenuItem);
+		ditherButtonGroup.add(this.simple2dDitherMenuItem);
+		ditherButtonGroup.add(this.jarvisJudiceNinkeDitherMenuItem);
+		ditherButtonGroup.add(this.stuckiDitherMenuItem);
+		ditherButtonGroup.add(this.sierra3DitherMenuItem);
+		ditherButtonGroup.add(this.sierra2DitherMenuItem);
+		ditherButtonGroup.add(this.burkesDitherMenuItem);
 		ditherButtonGroup.add(this.noDitherMenuItem);
 		
 		
@@ -474,24 +513,24 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 			// do nothing, just wait until its done resetting
 		}
 		// other components go here
-		else if (e.getSource() == this.floydSteinbergRadioButton)
-		{
-			System.out.println("wtf2");
-			this.displayImage.setDitherType(DitherTypes.FloydSteinberg);
-		}
-		else if (e.getSource() == this.atkinsonRadioButton)
-		{
-			System.out.println("wtf");
-			this.displayImage.setDitherType(DitherTypes.Atkinson);
-		}
-		else if (e.getSource() == this.riemersmaRadioButton)
-		{
-			this.displayImage.setDitherType(DitherTypes.Riemersma);
-		}
-		else if (e.getSource() == this.noneRadioButton)
-		{
-			this.displayImage.setDitherType(DitherTypes.None);
-		}
+//		else if (e.getSource() == this.floydSteinbergRadioButton)
+//		{
+//			System.out.println("wtf2");
+//			this.displayImage.setDitherType(DitherTypes.FloydSteinberg);
+//		}
+//		else if (e.getSource() == this.atkinsonRadioButton)
+//		{
+//			System.out.println("wtf");
+//			this.displayImage.setDitherType(DitherTypes.Atkinson);
+//		}
+//		else if (e.getSource() == this.riemersmaRadioButton)
+//		{
+//			this.displayImage.setDitherType(DitherTypes.Riemersma);
+//		}
+//		else if (e.getSource() == this.noneRadioButton)
+//		{
+//			this.displayImage.setDitherType(DitherTypes.None);
+//		}
 		else if (e.getSource() == this.previewButton)
 		{
 			if (this.displayImage.getSelectionImage() != null)
