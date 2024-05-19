@@ -11,12 +11,14 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import debug.Debug;
 import gui.Base;
 import gui.notification.Notification;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
 import processing.colors.Color;
 import processing.colors.Colors;
+import processing.colors.search.ClusterGenerator;
 import processing.dithering.DitherTypes;
 
 public class MenuBarActionListener implements ActionListener {
@@ -112,17 +114,24 @@ public class MenuBarActionListener implements ActionListener {
 		}
 		else if (Base.INSTANCE.changeColorPaletteMenuItem == e.getSource())
 		{
-			System.out.println("removing colors");
-			Color[] c = new Color[Colors.colorArr.length - 3];
-			for (int i = 0; i < Colors.colorArr.length - 3; i++) {
-				c[i] = Colors.colorArr[i];
-				
-			}
-			Base.INSTANCE.displayImage.removeColorsFromPalette(c);
+//			System.out.println("removing colors");
+//			Color[] c = new Color[Colors.colorArr.length - 3];
+//			for (int i = 0; i < Colors.colorArr.length - 3; i++) {
+//				c[i] = Colors.colorArr[i];
+//				
+//			}
+//			Base.INSTANCE.displayImage.removeColorsFromPalette(c);
 //			Base.INSTANCE.displayImage.removeColorFromPalette(Colors.fromString("ink_sac1"));
 //			Base.INSTANCE.displayImage.removeColorFromPalette(Colors.fromString("ink_sac2"));
 //			Base.INSTANCE.displayImage.removeColorFromPalette(Colors.fromString("ink_sac3"));
+//			System.out.println(ClusterGenerator.generateClusters(15));
 			
+//			for (int i = 5; i < 25; i++) {
+//				System.out.println(i + " : " + ClusterGenerator.avgDistanceToCentroid(ClusterGenerator.generateClusters(i)));
+//			}
+			
+//			System.out.println(ClusterGenerator.generateClusters(14));
+			Debug.printColorRGB();
 		}
 		
 			// dither submenu

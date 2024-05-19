@@ -44,6 +44,7 @@ public class Color
 		return i;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return this.name + (this.lightness + 2);

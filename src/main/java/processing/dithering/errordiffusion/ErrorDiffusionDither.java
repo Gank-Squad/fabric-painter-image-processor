@@ -2,7 +2,11 @@ package processing.dithering.errordiffusion;
 
 import java.awt.image.BufferedImage;
 
+import processing.colors.Color;
 import processing.colors.Colors;
+import processing.colors.search.Cluster;
+import processing.colors.search.ClusterGenerator;
+import processing.colors.search.SearchClusters;
 
 public class  ErrorDiffusionDither  {
 	private static int[] RGBfromHex(int c) {
@@ -80,11 +84,19 @@ public class  ErrorDiffusionDither  {
 			}
 		}
 		
+//		if (SearchClusters.clusters == null) {
+//			SearchClusters.clusters = (Cluster[])ClusterGenerator.generateClusters(14).toArray();
+//		}
+		
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int oldPixel = image.getRGB(x, y);
-				int newPixel = Colors.HexToColor(oldPixel).RGBAsHex();
+//				int newPixel = Colors.HexToColor(oldPixel).RGBAsHex();
+				int newPixel = RGBtoHex(Colors.HexToRGB(oldPixel));
+//				int newPixel = Colors.HexToHex(oldPixel);
+//				Color c = SearchClusters.findNearestNeighbor(oldPixel, SearchClusters.clusters);
+//				int newPixel = RGBtoHex(new int[] {c.r,c.g,c.b});
 				
 				image.setRGB(x, y, newPixel);
 				

@@ -296,7 +296,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		fc.setFileFilter(new ImageFilter());
 		
 		
-		SpinnerNumberModel panelModel = new SpinnerNumberModel(1, 1, 64, 1);
+		SpinnerNumberModel panelModel = new SpinnerNumberModel(1, 1, 256, 1);
 		
 		c = new GridBagConstraints();
 		c.weightx = 0.5;
@@ -312,7 +312,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 8;
 		c.gridy = 0;
-		panelModel = new SpinnerNumberModel(1, 1, 64, 1);
+		panelModel = new SpinnerNumberModel(1, 1, 256, 1);
 		this.yPanels = new JSpinner(panelModel);
 		this.yPanels.addChangeListener(this);
 		settingsPanel.add(yPanels, c);

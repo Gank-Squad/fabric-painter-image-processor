@@ -54,6 +54,7 @@ public class DisplayImage extends JComponent
 	private ArrayList<processing.colors.Color> disabledColors = new ArrayList<>();
 	
 	private BufferedImage originalImage;
+	private BufferedImage resizedImage;
 	private BufferedImage workingImage;
 	
 	private DisplayBackground bg;
@@ -156,32 +157,56 @@ public class DisplayImage extends JComponent
 			System.out.println("updaing palette image");
 			ProcessImg.updatePaletteImage(getPalette());	
 		}
-		
-		if (ditherType != prevDitherType || imageChanged || scaleChanged || checkIfSizeChanged() || HSVCChanged || paletteChanged)
+		boolean dither = false;
+		if (imageChanged || scaleChanged || checkIfSizeChanged())
 		{
+			dither = true;
 			imageChanged = false;
 			scaleChanged = false;
-			prevDitherType = ditherType;
-			HSVCChanged = false;
-			paletteChanged = false;
-			
-			// resize image
 			System.out.println("resizing");
-			this.workingImage = ProcessImg.scaleImageExceed1Dimension(this.originalImage, 
+			this.resizedImage = ProcessImg.scaleImageExceed1Dimension(this.originalImage, 
 					(int)Math.round((double)this.xPanels * (float)canvasSize), 
 					(int)Math.round((double)this.yPanels * (float)canvasSize),
 					this.scaleX, this.scaleY, false);
+		}
+		
+		if (HSVCChanged)
+		{
+			this.workingImage = ProcessImg.modifyContrastAndHSV(this.resizedImage, hue, saturation, brightness, contrast);
+		}
+		
+		if (dither || ditherType != prevDitherType || HSVCChanged || paletteChanged)
+		{
+			
+			
+			
+			// resize image
+//			System.out.println("resizing");
+//			this.workingImage = ProcessImg.scaleImageExceed1Dimension(this.originalImage, 
+//					(int)Math.round((double)this.xPanels * (float)canvasSize), 
+//					(int)Math.round((double)this.yPanels * (float)canvasSize),
+//					this.scaleX, this.scaleY, false);
 			
 			// adjust HSV and contrast
-			this.workingImage = ProcessImg.modifyContrastAndHSV(this.workingImage, hue, saturation, brightness, contrast);
+			
 			
 			// dither image
 			System.out.println("dithering");
-			this.workingImage = Dither.ditherImage(this.workingImage, ditherType);
+			if (HSVCChanged) {
+				System.out.println("working" + HSVCChanged);
+				this.workingImage = Dither.ditherImage(this.workingImage, ditherType);
+			} else {
+				System.out.println("resized");
+				this.workingImage = Dither.ditherImage(this.resizedImage, ditherType);
+			}
+				
 			System.out.println();
 			
 			verifyAndResetSelectionBoxBounds();
-
+			
+			prevDitherType = ditherType;
+			HSVCChanged = false;
+			paletteChanged = false;
 		}
 		
 	}
