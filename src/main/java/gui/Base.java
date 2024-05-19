@@ -67,6 +67,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	public JMenu fileMenu, editMenu, viewMenu, helpMenu;
 	JMenu ditherSubMenu;
 	public JMenuItem loadImageMenuItem, saveImageMenuItem;
+	public JCheckBoxMenuItem toggleSavingPaletteImages;
 	
 	public JCheckBoxMenuItem toggleGridLinesMenuItem;
 	public JMenuItem resetImageMenuItem, changeColorPaletteMenuItem, convertToMonochromeMenuItem, changeCanvasResolutionMenuItem;
@@ -99,9 +100,7 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public static void main(String[] args)
 	{
-		
-		ColorIcons.generateDyeImages();
-		
+	
 		frame = new JFrame("Fabric Painter Image Processor");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -139,6 +138,10 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 		this.loadImageMenuItem.addActionListener(this.menuBarActionListener);
 		this.saveImageMenuItem = new JMenuItem("Save Image");
 		this.saveImageMenuItem.addActionListener(this.menuBarActionListener);
+		this.toggleSavingPaletteImages = new JCheckBoxMenuItem("Save Palette Images");
+		this.toggleSavingPaletteImages.setSelected(true);
+		this.toggleSavingPaletteImages.addActionListener(this.menuBarActionListener);
+		this.fileMenu.add(this.toggleSavingPaletteImages);
 		this.fileMenu.add(this.loadImageMenuItem);
 		this.fileMenu.add(this.saveImageMenuItem);
 		

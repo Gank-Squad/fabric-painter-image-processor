@@ -96,20 +96,21 @@ public class ColorIcons {
 	}
 	
 	public static void savePaletteImagesToDir(BufferedImage image, int panelResolution, File targetDirectory) {
-		final int xmax = image.getWidth() / panelResolution;
-		final int ymax = image.getHeight() / panelResolution;
+		final int xmax = image.getWidth() / panelResolution - 1;
+		final int ymax = image.getHeight() / panelResolution - 1;
 		
 		BufferedImage i;
-		
+		int counter = 0;
 		for (int y = 0; y <= ymax; y++) {
 			for (int x = 0; x <= xmax; x++) {
 				i = image.getSubimage(x*panelResolution, y*panelResolution, panelResolution, panelResolution);
 				
 				try {
-					ImageIO.write(generatePaletteIconImage(i), "png", new File(targetDirectory.getAbsolutePath() + File.separator + (y*xmax+x) + "p.png"));
+					ImageIO.write(generatePaletteIconImage(i), "png", new File(targetDirectory.getAbsolutePath() + File.separator + (counter) + "p.png"));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				counter++;
 			}
 			
 		}
