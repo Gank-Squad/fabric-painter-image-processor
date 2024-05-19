@@ -101,12 +101,12 @@ public class ColorIcons {
 		
 		BufferedImage i;
 		
-		for (int y = 1; y <= ymax; y++) {
-			for (int x = 1; x <= xmax; x++) {
-				i = image.getSubimage((x-1)*panelResolution, (y-1)*panelResolution, panelResolution, panelResolution);
+		for (int y = 0; y <= ymax; y++) {
+			for (int x = 0; x <= xmax; x++) {
+				i = image.getSubimage(x*panelResolution, y*panelResolution, panelResolution, panelResolution);
 				
 				try {
-					ImageIO.write(generatePaletteIconImage(i), "png", new File(targetDirectory.getAbsolutePath() + File.separator + ((y-1)*xmax+(x-1)) + "p.png"));
+					ImageIO.write(generatePaletteIconImage(i), "png", new File(targetDirectory.getAbsolutePath() + File.separator + (y*xmax+x) + "p.png"));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

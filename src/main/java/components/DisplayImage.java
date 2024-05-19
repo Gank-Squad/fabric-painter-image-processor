@@ -194,10 +194,10 @@ public class DisplayImage extends JComponent
 			System.out.println("dithering");
 			if (HSVCChanged) {
 				System.out.println("working" + HSVCChanged);
-				this.workingImage = Dither.ditherImage(this.workingImage, ditherType);
+				this.workingImage = Dither.ditherImage(ProcessImg.copyImage(this.workingImage), ditherType);
 			} else {
 				System.out.println("resized");
-				this.workingImage = Dither.ditherImage(this.resizedImage, ditherType);
+				this.workingImage = Dither.ditherImage(ProcessImg.copyImage(this.resizedImage), ditherType);
 			}
 				
 			System.out.println();
