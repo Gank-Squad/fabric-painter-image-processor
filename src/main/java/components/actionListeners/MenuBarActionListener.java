@@ -17,6 +17,7 @@ import gui.notification.Notification;
 import processing.ImageToInstructions;
 import processing.ProcessImg;
 import processing.colors.Color;
+import processing.colors.ColorIcons;
 import processing.colors.Colors;
 import processing.colors.search.ClusterGenerator;
 import processing.dithering.DitherTypes;
@@ -89,6 +90,12 @@ public class MenuBarActionListener implements ActionListener {
 				ImageIO.write(Base.INSTANCE.displayImage.getOriginalImage(), "png", file);
 				
 				ImageToInstructions.convertImageToInstructions(Base.INSTANCE.displayImage.getSelectionImage(), dir);
+				
+//				if (Base.INSTANCE.saveIndividualPanelImages);
+				
+				if (Base.INSTANCE.saveIndividualPanelPaletteImages) {
+					ColorIcons.savePaletteImagesToDir(Base.INSTANCE.displayImage.getSelectionImage(), 32, dir);
+				}
 				
 				System.out.println("Saving output to " + dir.getAbsolutePath());
 			}

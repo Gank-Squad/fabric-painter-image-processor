@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -65,5 +66,53 @@ public class ColorIcons {
 		gra.dispose();
 		
 		return i;
+	}
+	
+	public static BufferedImage generatePaletteIconImage(BufferedImage image) {
+		
+		BufferedImage i = new BufferedImage(32*image.getWidth(), 32*image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics g = i.getGraphics();
+		BufferedImage icon;
+		processing.colors.Color c = null;
+		for (int y = 0; y < image.getHeight(); y++) {
+			for (int x = 0; x < image.getWidth(); x++) {
+				try {
+					c = Colors.HexToColor(image.getRGB(x, y));
+					icon = ImageIO.read(new File("icons/" + c.toString() + ".png"));
+					
+					g.drawImage(icon, 32*x, 32*y, null);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+					if (c != null)
+						System.out.println("Something went wrong with " + c.toString());
+				}
+			}
+		}
+		
+		g.dispose();
+		
+		return i;
+	}
+	
+	public static void savePaletteImagesToDir(BufferedImage image, int panelResolution, File targetDirectory) {
+		final int xmax = image.getWidth() / panelResolution;
+		final int ymax = image.getHeight() / panelResolution;
+		
+		BufferedImage i;
+		
+		for (int y = 1; y <= ymax; y++) {
+			for (int x = 1; x <= xmax; x++) {
+				i = image.getSubimage((x-1)*panelResolution, (y-1)*panelResolution, panelResolution, panelResolution);
+				
+				try {
+					ImageIO.write(generatePaletteIconImage(i), "png", new File(targetDirectory.getAbsolutePath() + File.separator + ((y-1)*xmax+(x-1)) + "p.png"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		
 	}
 }
