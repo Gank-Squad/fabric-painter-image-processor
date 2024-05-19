@@ -46,6 +46,8 @@ import components.filters.ImageFilter;
 import gui.notification.Notification;
 import processing.ProcessImg;
 import processing.TransferableImage;
+import processing.colors.ColorIcons;
+import processing.colors.Colors;
 import processing.dithering.DitherTypes;
 
 public class Base extends JFrame implements ActionListener, ChangeListener
@@ -76,6 +78,9 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public JMenuItem helpMenuItem;
 	
+	public boolean saveIndividualPanelImages = true;
+	public boolean saveIndividualPanelPaletteImages = true;
+	
 	// it might make more sense to make this a singleton since its hardcoded
 	MenuBarActionListener menuBarActionListener = new MenuBarActionListener();
 	
@@ -94,6 +99,9 @@ public class Base extends JFrame implements ActionListener, ChangeListener
 	
 	public static void main(String[] args)
 	{
+		
+		ColorIcons.generateDyeImages();
+		
 		frame = new JFrame("Fabric Painter Image Processor");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
