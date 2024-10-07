@@ -19,7 +19,7 @@ public class  ErrorDiffusionDither  {
 		return rgb;
 	}
 	private static int RGBtoHex(int[] rgb) {
-		return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
+		return 0xff000000 + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
 	}
 	private static int[] getQuantizationError(int c1, int c2) {
 		int[] rgb1 = RGBfromHex(c1);
@@ -68,8 +68,12 @@ public class  ErrorDiffusionDither  {
 	
 	public static  void ditherImage(BufferedImage image, float[][] matrix) {
 		if (image == null) {
+			System.out.println("dither image image is null");
 			return;
 		}
+		System.out.println("dither image image is not null");
+//		if (true) { return; }
+
 		
 		final int height = image.getHeight();
 		final int width = image.getWidth();
@@ -92,11 +96,8 @@ public class  ErrorDiffusionDither  {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int oldPixel = image.getRGB(x, y);
-//				int newPixel = Colors.HexToColor(oldPixel).RGBAsHex();
+
 				int newPixel = RGBtoHex(Colors.HexToRGB(oldPixel));
-//				int newPixel = Colors.HexToHex(oldPixel);
-//				Color c = SearchClusters.findNearestNeighbor(oldPixel, SearchClusters.clusters);
-//				int newPixel = RGBtoHex(new int[] {c.r,c.g,c.b});
 				
 				image.setRGB(x, y, newPixel);
 				

@@ -689,4 +689,6 @@ public class Colors {
 		
 		return str + "\"";
 	}
+	
+	public static final int solidAlpha = 0xff000000;
 }
